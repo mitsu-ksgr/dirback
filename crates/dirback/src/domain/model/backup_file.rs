@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 // Errors
 //-----------------------------------------------------------------------------
 #[derive(Debug, PartialEq)]
-enum BackupFileError {
+pub enum BackupFileError {
     MissingFilename(String),
     InvalidFiletype(String),
     InvalidTimestamp(String),
