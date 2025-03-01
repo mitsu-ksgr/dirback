@@ -1,4 +1,3 @@
-//!
 //! # Backup file
 //!
 //! Backup file information.
@@ -10,9 +9,10 @@ use chrono::{DateTime, Utc};
 //-----------------------------------------------------------------------------
 // Errors
 //-----------------------------------------------------------------------------
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum BackupFileError {
     MissingFilename(String),
+    InvalidFiletype(String),
     InvalidTimestamp(String),
 }
 
@@ -21,6 +21,9 @@ impl std::fmt::Display for BackupFileError {
         match self {
             BackupFileError::MissingFilename(filepath) => {
                 write!(f, "Missing filename: `{}`", filepath)
+            },
+            BackupFileError::InvalidFiletype(filepath) => {
+                write!(f, "Invalid filetype(tar.gz only): `{}`", filepath)
             },
             BackupFileError::InvalidTimestamp(filepath) => {
                 write!(f, "Invalid timestamp in filename: `{}`", filepath)
@@ -51,14 +54,23 @@ impl BackupFile {
     }
 
     pub fn build(backup_filepath: &Path) -> Result<Self, BackupFileError> {
-        let filestem = backup_filepath
-            .file_stem()
+        let filename = backup_filepath
+            .file_name()
+            .and_then(|s| s.to_str())
+            .map(String::from)
             .ok_or_else(|| BackupFileError::MissingFilename(
                 backup_filepath.to_string_lossy().to_string()
             ))?;
-        let filestem = filestem.to_string_lossy().to_string();
 
-        let timestamp = DateTime::parse_from_str(&filestem, "%Y%m%dT%H%M%S%z")
+        if !filename.ends_with(".tar.gz") {
+            return Err(BackupFileError::InvalidFiletype(
+                backup_filepath.to_string_lossy().to_string()
+            ));
+        }
+
+        let filestem = filename.trim_end_matches(".tar.gz").to_string();
+        let timestamp = &filestem.replace("Z", "+00:00");
+        let timestamp = DateTime::parse_from_str(timestamp, "%Y%m%dT%H%M%S%z")
             .map_err(|_| BackupFileError::InvalidTimestamp(
                     backup_filepath.to_string_lossy().to_string()
             ))?
@@ -80,7 +92,10 @@ impl BackupFile {
         path
     }
 
-    // TODO
+    /// Returns a path as String.
+    pub fn path(&self) -> String {
+        self.path.to_string_lossy().to_string()
+    }
 }
 
 
@@ -112,25 +127,67 @@ mod tests {
     }
 
     #[test]
+    fn build() {
+        let filepath = String::from("/tmp/dirback/20250123T032456Z.tar.gz");
+        let bkpath = Path::new(&filepath);
+
+        let result = BackupFile::build(bkpath);
+        if let Err(e) = result {
+            panic!("Expected Ok, but got Err: {:?}", e);
+        }
+
+        let bkfile = result.unwrap();
+        assert_eq!(
+            bkfile.path.to_string_lossy().to_string(),
+            filepath.clone());
+        assert_eq!(
+            bkfile.timestamp,
+            DateTime::parse_from_rfc3339("2025-01-23T03:24:56Z").expect(""));
+    }
+
+    #[test]
+    fn path_method() {
+        let filepath = String::from("/tmp/dirback/20250123T032456Z.tar.gz");
+        let bkpath = Path::new(&filepath);
+        let result = BackupFile::build(bkpath).unwrap();
+
+        assert_eq!(result.path(), filepath.clone());
+    }
+
+    #[test]
     fn build_missing_filename() {
-        let bkpath = Path::new("/");
+        let filepath = String::from("/");
+        let bkpath = Path::new(&filepath);
         let result = BackupFile::build(bkpath);
 
         assert!(result.is_err());
-        assert!(matches!(
-                result.unwrap_err(),
-                BackupFileError::MissingFilename(_)));
+        assert_eq!(
+            result.unwrap_err(),
+            BackupFileError::MissingFilename(filepath.clone()));
+    }
+
+    #[test]
+    fn build_invalid_filetype() {
+        let filepath = String::from("/tmp/dirback/20250123T032456Z.zip");
+        let bkpath = Path::new(&filepath);
+        let result = BackupFile::build(bkpath);
+
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            BackupFileError::InvalidFiletype(filepath.clone()));
     }
 
     #[test]
     fn build_invalid_timestamp() {
-        let bkpath = Path::new("/tmp/dirback/bhge.tar.gz");
+        let filepath = String::from("/tmp/dirback/bhge.tar.gz");
+        let bkpath = Path::new(&filepath);
         let result = BackupFile::build(bkpath);
 
         assert!(result.is_err());
-        assert!(matches!(
-                result.unwrap_err(),
-                BackupFileError::InvalidTimestamp(_)));
+        assert_eq!(
+            result.unwrap_err(),
+            BackupFileError::InvalidTimestamp(filepath.clone()));
     }
 }
 
