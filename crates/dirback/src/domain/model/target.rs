@@ -13,7 +13,6 @@ pub struct Target {
 }
 
 impl Target {
-
     /// Create a new BackupTarget.
     ///
     /// The id is the identifier of target.
@@ -21,8 +20,6 @@ impl Target {
         Target { id, path }
     }
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Tests
@@ -33,13 +30,9 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let td = Target::new(
-            String::from("xxx"),
-            String::from("/path/to/target"),
-        );
+        let td = Target::new(String::from("xxx"), String::from("/path/to/target"));
 
         assert_eq!(td.id, "xxx");
         assert_eq!(td.path, "/path/to/target");
     }
 }
-

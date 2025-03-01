@@ -3,8 +3,8 @@
 //! Backup file information.
 //!
 
-use std::path::{Path, PathBuf};
 use chrono::{DateTime, Utc};
+use std::path::{Path, PathBuf};
 
 //-----------------------------------------------------------------------------
 // Errors
@@ -21,19 +21,18 @@ impl std::fmt::Display for BackupFileError {
         match self {
             BackupFileError::MissingFilename(filepath) => {
                 write!(f, "Missing filename: `{}`", filepath)
-            },
+            }
             BackupFileError::InvalidFiletype(filepath) => {
                 write!(f, "Invalid filetype(tar.gz only): `{}`", filepath)
-            },
+            }
             BackupFileError::InvalidTimestamp(filepath) => {
                 write!(f, "Invalid timestamp in filename: `{}`", filepath)
-            },
+            }
         }
     }
 }
 
 impl std::error::Error for BackupFileError {}
-
 
 //-----------------------------------------------------------------------------
 //  BackupFile
@@ -49,7 +48,7 @@ impl BackupFile {
     pub fn new(backup_filepath: &Path, timestamp: DateTime<Utc>) -> Self {
         BackupFile {
             path: backup_filepath.to_path_buf(),
-            timestamp
+            timestamp,
         }
     }
 
@@ -58,22 +57,22 @@ impl BackupFile {
             .file_name()
             .and_then(|s| s.to_str())
             .map(String::from)
-            .ok_or_else(|| BackupFileError::MissingFilename(
-                backup_filepath.to_string_lossy().to_string()
-            ))?;
+            .ok_or_else(|| {
+                BackupFileError::MissingFilename(backup_filepath.to_string_lossy().to_string())
+            })?;
 
         if !filename.ends_with(".tar.gz") {
             return Err(BackupFileError::InvalidFiletype(
-                backup_filepath.to_string_lossy().to_string()
+                backup_filepath.to_string_lossy().to_string(),
             ));
         }
 
         let filestem = filename.trim_end_matches(".tar.gz").to_string();
         let timestamp = &filestem.replace("Z", "+00:00");
         let timestamp = DateTime::parse_from_str(timestamp, "%Y%m%dT%H%M%S%z")
-            .map_err(|_| BackupFileError::InvalidTimestamp(
-                    backup_filepath.to_string_lossy().to_string()
-            ))?
+            .map_err(|_| {
+                BackupFileError::InvalidTimestamp(backup_filepath.to_string_lossy().to_string())
+            })?
             .with_timezone(&Utc);
 
         Ok(BackupFile {
@@ -83,10 +82,7 @@ impl BackupFile {
     }
 
     /// Make a backup file path.
-    pub fn make_backup_filepath(
-        dirpath: &Path,
-        backup_date: &DateTime<Utc>,
-    ) -> PathBuf {
+    pub fn make_backup_filepath(dirpath: &Path, backup_date: &DateTime<Utc>) -> PathBuf {
         let mut path = dirpath.to_path_buf();
         path.push(backup_date.format("%Y%m%dT%H%M%SZ.tar.gz").to_string());
         path
@@ -98,7 +94,6 @@ impl BackupFile {
     }
 }
 
-
 //-----------------------------------------------------------------------------
 // Tests
 //-----------------------------------------------------------------------------
@@ -109,16 +104,13 @@ mod tests {
     #[test]
     fn make_backup_filepath() {
         //> 2025-01-23 03:24:56.789 UTC
-        let backup_date = DateTime::parse_from_str(
-            "2025-01-23 12:24:56.789 +09:00",
-            "%Y-%m-%d %H:%M:%S%.3f %z"
-        ).unwrap().to_utc();
+        let backup_date =
+            DateTime::parse_from_str("2025-01-23 12:24:56.789 +09:00", "%Y-%m-%d %H:%M:%S%.3f %z")
+                .unwrap()
+                .to_utc();
         let dirpath = Path::new("/tmp/dirback");
 
-        let bkpath = BackupFile::make_backup_filepath(
-            dirpath,
-            &backup_date
-        );
+        let bkpath = BackupFile::make_backup_filepath(dirpath, &backup_date);
 
         assert_eq!(
             bkpath.to_str(),
@@ -137,12 +129,11 @@ mod tests {
         }
 
         let bkfile = result.unwrap();
-        assert_eq!(
-            bkfile.path.to_string_lossy().to_string(),
-            filepath.clone());
+        assert_eq!(bkfile.path.to_string_lossy().to_string(), filepath.clone());
         assert_eq!(
             bkfile.timestamp,
-            DateTime::parse_from_rfc3339("2025-01-23T03:24:56Z").expect(""));
+            DateTime::parse_from_rfc3339("2025-01-23T03:24:56Z").expect("")
+        );
     }
 
     #[test]
@@ -163,7 +154,8 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err(),
-            BackupFileError::MissingFilename(filepath.clone()));
+            BackupFileError::MissingFilename(filepath.clone())
+        );
     }
 
     #[test]
@@ -175,7 +167,8 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err(),
-            BackupFileError::InvalidFiletype(filepath.clone()));
+            BackupFileError::InvalidFiletype(filepath.clone())
+        );
     }
 
     #[test]
@@ -187,7 +180,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err(),
-            BackupFileError::InvalidTimestamp(filepath.clone()));
+            BackupFileError::InvalidTimestamp(filepath.clone())
+        );
     }
 }
-

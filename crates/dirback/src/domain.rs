@@ -3,6 +3,3 @@
 //!
 
 pub mod model;
-
-
-
