@@ -1,7 +1,11 @@
 [package]
 name = "dirback"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 
 [dependencies]
+anyhow = { workspace = true }
 chrono = "0.4.40"
+directories = "6.0.0"
+uuid = { version = "1.15.1", features = ["v4"] }
+

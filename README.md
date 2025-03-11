@@ -16,8 +16,13 @@ Dirback
 - Application data path
   - `${APP_DATA_PATH}/targets.json`
     - target id (uuid?)
-    - target dir path
 - BackupFile path
   - `${APP_DATA_PATH}/targets/{TARGET_ID}/info.json`
-  - `${APP_DATA_PATH}/targets/{TARGET_ID}/backups/{DATETIME}.tar.gz`
+    - target_id ... (uuid)
+    - target_dir_path
+    - backups
+      - id ... backup id
+      - filename ... (`{BACKUP_ID}_{TIMESTAMP}.tar.gz`)
+      - note
+  - `${APP_DATA_PATH}/targets/{TARGET_ID}/backups/{BACKUP_ID}_{TIMESTAMP}.tar.gz`
 

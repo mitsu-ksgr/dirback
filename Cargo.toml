@@ -2,3 +2,9 @@
 members = ["crates/*"]
 resolver = "2"
 
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
+anyhow = "1.0.97"
+
