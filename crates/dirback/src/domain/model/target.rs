@@ -23,6 +23,9 @@ pub struct Target {
     /// Used as an id when saving target information and backups.
     pub id: String,
 
+    /// Target Name.
+    pub name: String,
+
     /// Path to the directory of backup target.
     pub path: PathBuf,
 
@@ -34,9 +37,10 @@ impl Target {
     /// Create a new BackupTarget.
     ///
     /// The id is the identifier of target.
-    pub fn new(id: String, target_dir_path: &Path) -> Self {
+    pub fn new(id: &str, name: &str, target_dir_path: &Path) -> Self {
         Target {
-            id,
+            id: id.to_string(),
+            name: name.to_string(),
             path: target_dir_path.to_path_buf(),
             backups: Vec::<BackupEntry>::new(),
         }
@@ -87,7 +91,7 @@ mod tests {
     fn prepare_target() -> Target {
         let target_id = Uuid::new_v4();
         let target_path = Path::new("/tmp/path/to/target-dir");
-        Target::new(target_id.to_string(), target_path)
+        Target::new(&target_id.to_string(), "Test Target", target_path)
     }
 
     fn prepare_backup_dir(target: &Target) -> PathBuf {
@@ -100,7 +104,7 @@ mod tests {
         let target_path_str = String::from("/tmp/path/to/target-dir");
         let target_path = Path::new(&target_path_str);
 
-        let target = Target::new(id.to_string(), target_path);
+        let target = Target::new(&id.to_string(), "Test Target", target_path);
         assert_eq!(target.id, id.to_string());
         assert_eq!(target.path, target_path.to_path_buf());
         assert_eq!(target.backups.len(), 0);
