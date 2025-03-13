@@ -4,7 +4,6 @@
 //! BackupEntry represents the information of a backup.
 //!
 
-use chrono::{DateTime, Utc};
 use std::path::{Path, PathBuf};
 
 use crate::domain::model::timestamp::Timestamp;

@@ -10,8 +10,9 @@ use crate::domain::model::backup_entry::BackupEntry;
 use crate::domain::model::timestamp::Timestamp;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum TargetError {
+    #[error("Duplicate ID")]
     DuplicateId,
 }
 
@@ -85,7 +86,6 @@ impl Target {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::model::timestamp::Timestamp;
     use uuid::Uuid;
 
     fn prepare_target() -> Target {
@@ -110,88 +110,96 @@ mod tests {
         assert_eq!(target.backups.len(), 0);
     }
 
-    #[test]
-    fn test_new_backup_entry() {
-        let mut target = prepare_target();
-        let backup_dir = prepare_backup_dir(&target);
+    mod test_new_backup_entry {
+        use super::*;
 
-        let entry = target.new_backup_entry(&backup_dir, "tar.gz");
+        #[test]
+        fn it_works() {
+            let target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
 
-        assert_eq!(entry.id, 1);
-        assert_eq!(entry.note, "");
+            let entry = target.new_backup_entry(&backup_dir, "tar.gz");
 
-        let fname = entry.path.file_name().and_then(|s| s.to_str()).unwrap();
-        assert!(fname.starts_with("0001"));
+            assert_eq!(entry.id, 1);
+            assert_eq!(entry.note, "");
+
+            let fname = entry.path.file_name().and_then(|s| s.to_str()).unwrap();
+            assert!(fname.starts_with("0001"));
+        }
+
+        #[test]
+        fn id_will_be_same_before_register() {
+            let target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
+
+            let entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
+            let entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
+
+            assert_eq!(entry1.id, entry2.id);
+        }
+
+        #[test]
+        fn id_auto_increment() {
+            let mut target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
+            assert_eq!(target.backups.len(), 0);
+
+            let entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
+            let _ = target.register_backup_entry(entry1.clone());
+
+            let entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
+            let _ = target.register_backup_entry(entry2.clone());
+
+            assert_ne!(entry1.id, entry2.id);
+            assert_eq!(target.backups.len(), 2);
+        }
+
+        #[test]
+        fn id_is_next_of_last_entry() {
+            let mut target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
+            assert_eq!(target.backups.len(), 0);
+
+            let mut entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
+            entry1.id = 5;
+            let _ = target.register_backup_entry(entry1.clone());
+
+            let entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
+            assert_eq!(entry2.id, entry1.id + 1);
+        }
     }
 
-    #[test]
-    fn test_new_backup_entry__id_will_be_same_before_register() {
-        let mut target = prepare_target();
-        let backup_dir = prepare_backup_dir(&target);
+    mod test_register_backup_entry {
+        use super::*;
 
-        let entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
-        let entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
+        #[test]
+        fn it_works() {
+            let mut target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
 
-        assert_eq!(entry1.id, entry2.id);
-    }
+            let entry = target.new_backup_entry(&backup_dir, "tar.gz");
 
-    #[test]
-    fn test_new_backup_entry__id_auto_increment() {
-        let mut target = prepare_target();
-        let backup_dir = prepare_backup_dir(&target);
-        assert_eq!(target.backups.len(), 0);
+            assert_eq!(target.backups.len(), 0);
+            let result = target.register_backup_entry(entry);
+            assert!(result.is_ok());
+            assert_eq!(target.backups.len(), 1);
+        }
 
-        let entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
-        target.register_backup_entry(entry1.clone());
+        #[test]
+        fn error_duplicated_id() {
+            let mut target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
 
-        let entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
-        target.register_backup_entry(entry2.clone());
+            let entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
+            let _ = target.register_backup_entry(entry1.clone());
 
-        assert_ne!(entry1.id, entry2.id);
-        assert_eq!(target.backups.len(), 2);
-    }
+            let mut entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
+            entry2.id = entry1.id;
 
-    #[test]
-    fn test_new_backup_entry__id_is_next_of_last_entry() {
-        let mut target = prepare_target();
-        let backup_dir = prepare_backup_dir(&target);
-        assert_eq!(target.backups.len(), 0);
-
-        let mut entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
-        entry1.id = 5;
-        target.register_backup_entry(entry1.clone());
-
-        let entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
-        assert_eq!(entry2.id, entry1.id + 1);
-    }
-
-    #[test]
-    fn test_register_backup_entry() {
-        let mut target = prepare_target();
-        let backup_dir = prepare_backup_dir(&target);
-
-        let entry = target.new_backup_entry(&backup_dir, "tar.gz");
-
-        assert_eq!(target.backups.len(), 0);
-        let result = target.register_backup_entry(entry);
-        assert!(result.is_ok());
-        assert_eq!(target.backups.len(), 1);
-    }
-
-    #[test]
-    fn test_register_backup_entry__duplicated_id_error() {
-        let mut target = prepare_target();
-        let backup_dir = prepare_backup_dir(&target);
-
-        let entry1 = target.new_backup_entry(&backup_dir, "tar.gz");
-        let _ = target.register_backup_entry(entry1.clone());
-
-        let mut entry2 = target.new_backup_entry(&backup_dir, "tar.gz");
-        entry2.id = entry1.id;
-
-        let result = target.register_backup_entry(entry2.clone());
-        assert!(result.is_err());
-        assert_eq!(result, Err(TargetError::DuplicateId));
-        assert_eq!(target.backups.len(), 1);
+            let result = target.register_backup_entry(entry2.clone());
+            assert!(result.is_err());
+            assert_eq!(result, Err(TargetError::DuplicateId));
+            assert_eq!(target.backups.len(), 1);
+        }
     }
 }
