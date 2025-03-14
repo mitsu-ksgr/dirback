@@ -4,7 +4,7 @@
 //! BackupEntry represents the information of a backup.
 //!
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 use crate::domain::model::timestamp::Timestamp;
@@ -76,9 +76,14 @@ mod tests {
     fn it_serializable() {
         let id = 23;
         let ts = Timestamp::from_fmt_str("20250123T123456Z").unwrap();
-        let bkpath: PathBuf = [
-            "tmp", "targets", "xxx", "backups", "023_20250123T123456Z.tar.gz",
-        ].iter().collect();
+        let bkpath_parts = [
+            "tmp",
+            "targets",
+            "xxx",
+            "backups",
+            "023_20250123T123456Z.tar.gz",
+        ];
+        let bkpath: PathBuf = bkpath_parts.iter().collect();
         let note = "this is test backup file.";
 
         let src = BackupEntry::new(id, &bkpath, ts.clone(), &note);

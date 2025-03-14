@@ -8,7 +8,7 @@
 
 use crate::domain::model::backup_entry::BackupEntry;
 use crate::domain::model::timestamp::Timestamp;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, PartialEq, thiserror::Error)]

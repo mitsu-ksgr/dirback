@@ -8,7 +8,7 @@
 
 use anyhow::Context;
 use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Timestamp(DateTime<Utc>);
