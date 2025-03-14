@@ -6,5 +6,7 @@ resolver = "2"
 edition = "2024"
 
 [workspace.dependencies]
+mktemp = { path = "crates/mktemp" }
+
 anyhow = "1.0.97"
 thiserror = "2.0.12"

@@ -4,6 +4,10 @@ Dirback
 - A simple directory backup tool.
 
 
+## Todo
+- Fix the paths in tests to be runnable cross platform.
+
+
 ## Notes
 ### Base path
 - `APP_DATA_PATH`
@@ -25,4 +29,5 @@ Dirback
       - filename ... (`{BACKUP_ID}_{TIMESTAMP}.tar.gz`)
       - note
   - `${APP_DATA_PATH}/targets/{TARGET_ID}/backups/{BACKUP_ID}_{TIMESTAMP}.tar.gz`
+
 

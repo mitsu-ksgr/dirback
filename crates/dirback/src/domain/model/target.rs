@@ -8,6 +8,7 @@
 
 use crate::domain::model::backup_entry::BackupEntry;
 use crate::domain::model::timestamp::Timestamp;
+use serde::{Serialize, Deserialize};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, PartialEq, thiserror::Error)]
@@ -17,7 +18,7 @@ pub enum TargetError {
 }
 
 /// Target struct represents a backup target.
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Target {
     /// Target ID.
     ///
@@ -201,5 +202,27 @@ mod tests {
             assert_eq!(result, Err(TargetError::DuplicateId));
             assert_eq!(target.backups.len(), 1);
         }
+    }
+
+    #[test]
+    fn it_serializable() {
+        let mut src = prepare_target();
+        let backup_dir = prepare_backup_dir(&src);
+
+        for _ in 0..3 {
+            let entry = src.new_backup_entry(&backup_dir, "tar.gz");
+            let _ = src.register_backup_entry(entry.clone());
+        }
+
+        let s = serde_json::to_string(&src);
+        assert!(s.is_ok(), "it should be serializable into json.");
+
+        println!("{:?}", s);
+
+        let dst = serde_json::from_str(&s.unwrap());
+        assert!(dst.is_ok(), "it should be deserializable from json.");
+
+        let dst: Target = dst.unwrap();
+        assert_eq!(dst, src);
     }
 }

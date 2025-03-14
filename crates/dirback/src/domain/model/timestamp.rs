@@ -8,8 +8,9 @@
 
 use anyhow::Context;
 use chrono::{DateTime, Utc};
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Timestamp(DateTime<Utc>);
 
 impl Timestamp {
@@ -82,5 +83,19 @@ mod tests {
         let dt = DateTime::parse_from_rfc3339(dt_str).unwrap().to_utc();
         let ts = Timestamp::from_utc(&dt);
         assert_eq!(ts.fmt(), "20250123T123456Z")
+    }
+
+    #[test]
+    fn it_serializable() {
+        let src = Timestamp::now();
+
+        let s = serde_json::to_string(&src);
+        assert!(s.is_ok(), "it should be serializable into json.");
+
+        let dst = serde_json::from_str(&s.unwrap());
+        assert!(dst.is_ok(), "it should be deserializable from json.");
+
+        let dst: Timestamp = dst.unwrap();
+        assert_eq!(dst, src);
     }
 }

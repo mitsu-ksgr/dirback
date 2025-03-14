@@ -4,11 +4,12 @@
 //! BackupEntry represents the information of a backup.
 //!
 
+use serde::{Serialize, Deserialize};
 use std::path::{Path, PathBuf};
 
 use crate::domain::model::timestamp::Timestamp;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BackupEntry {
     pub id: u32,
     pub path: PathBuf,
@@ -69,5 +70,26 @@ mod tests {
         let result = BackupEntry::generate_backup_filename(id, &ts, ext);
         assert_eq!(result, "0015_20250123T123456Z.tar.gz");
         assert!(result.ends_with(ext));
+    }
+
+    #[test]
+    fn it_serializable() {
+        let id = 23;
+        let ts = Timestamp::from_fmt_str("20250123T123456Z").unwrap();
+        let bkpath: PathBuf = [
+            "tmp", "targets", "xxx", "backups", "023_20250123T123456Z.tar.gz",
+        ].iter().collect();
+        let note = "this is test backup file.";
+
+        let src = BackupEntry::new(id, &bkpath, ts.clone(), &note);
+
+        let s = serde_json::to_string(&src);
+        assert!(s.is_ok(), "it should be serializable into json.");
+
+        let dst = serde_json::from_str(&s.unwrap());
+        assert!(dst.is_ok(), "it should be deserializable from json.");
+
+        let dst: BackupEntry = dst.unwrap();
+        assert_eq!(dst, src);
     }
 }
