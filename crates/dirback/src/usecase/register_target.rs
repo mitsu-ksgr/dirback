@@ -26,7 +26,7 @@ impl<R: TargetRepository> RegisterTargetUsecase<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::infra::in_memory::repository::InMemoryTargetRepository;
+    use crate::infra::repository::in_memory::InMemoryTargetRepository;
 
     #[test]
     fn it_works() {

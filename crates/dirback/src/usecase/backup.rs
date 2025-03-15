@@ -52,7 +52,7 @@ impl<'a, R: TargetRepository, B: BackupService> BackupUsecase<'a, R, B> {
 mod tests {
     use super::*;
     use crate::domain::service::backup_service::BackupService;
-    use crate::infra::in_memory::repository::InMemoryTargetRepository;
+    use crate::infra::repository::in_memory::InMemoryTargetRepository;
     use std::cell::RefCell;
     use std::path::Path;
     use std::rc::Rc;
