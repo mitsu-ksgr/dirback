@@ -6,6 +6,7 @@ Dirback
 
 ## Todo
 - Fix the paths in tests to be runnable cross platform.
+- Manage backup directory path
 
 
 ## Notes
