@@ -21,7 +21,7 @@ use crate::domain::repository::targets::TargetRepository;
 use std::path::{Path, PathBuf};
 
 //-----------------------------------------------------------------------------
-// Support
+// Helper
 //-----------------------------------------------------------------------------
 const TARGET_INFO_DIR_NAME: &str = "targets";
 const TARGET_INFO_FILE_NAME: &str = "info.json";
