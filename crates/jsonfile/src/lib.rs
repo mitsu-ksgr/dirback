@@ -26,7 +26,7 @@ mod tests {
     use mktemp;
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, PartialEq, Serialize, Deserialize)]
+    #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
     struct Node {
         id: u32,
         name: String,
@@ -75,5 +75,26 @@ mod tests {
     fn it_return_err_when_file_not_exists() {
         let result: anyhow::Result<Node> = read(Path::new("noexists.json"));
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn write_is_overwrites_existing_file() {
+        let temp = mktemp::TempDir::new().unwrap();
+        let filepath = temp.path().join("test.json");
+
+        let node1 = Node {
+            id: 1,
+            name: "test".to_string(),
+            children: Vec::new(),
+        };
+        let _ = write(&filepath, &node1);
+        let result1: Node = read(&filepath).unwrap();
+
+        let mut node2 = node1.clone();
+        node2.id = node1.id + 1;
+        let _ = write(&filepath, &node2);
+        let result2: Node = read(&filepath).unwrap();
+
+        assert_ne!(result1, result2);
     }
 }
