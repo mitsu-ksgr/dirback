@@ -141,7 +141,6 @@ impl TargetRepository for FileStorageTargetRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     mod test_create_target_info_dir_path {
         use super::*;
