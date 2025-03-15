@@ -217,8 +217,6 @@ mod tests {
         let s = serde_json::to_string(&src);
         assert!(s.is_ok(), "it should be serializable into json.");
 
-        println!("{:?}", s);
-
         let dst = serde_json::from_str(&s.unwrap());
         assert!(dst.is_ok(), "it should be deserializable from json.");
 
