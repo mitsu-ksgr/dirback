@@ -30,7 +30,7 @@ impl TargetRepository for InMemoryTargetRepository {
         self.targets.iter().find(|t| t.id == target_id).cloned()
     }
 
-    fn update(&mut self, target: &Target) -> Option<Target> {
+    fn update(&mut self, target: &Target) -> anyhow::Result<Target> {
         self.targets
             .iter_mut()
             .find(|t| t.id == target.id)
@@ -38,6 +38,7 @@ impl TargetRepository for InMemoryTargetRepository {
                 *t = target.clone();
                 target.clone()
             })
+            .ok_or_else(|| anyhow::anyhow!("target not found"))
     }
 
     fn add(&mut self, name: &str, target_path: &Path) -> anyhow::Result<Target> {
@@ -100,7 +101,7 @@ mod tests {
 
             let id = target.id.to_string();
             let result = repo.update(&target);
-            assert!(result.is_some());
+            assert!(result.is_ok());
 
             let result = result.unwrap();
             assert_eq!(result.path.to_string_lossy(), "/tmp/dirback/target/foo");
@@ -110,7 +111,7 @@ mod tests {
         }
 
         #[test]
-        fn it_returns_none_when_id_does_not_exists() {
+        fn it_returns_err_when_id_does_not_exists() {
             let mut repo = InMemoryTargetRepository::new();
 
             let path = Path::new("/tmp/dirback/target");
@@ -120,7 +121,7 @@ mod tests {
             target2.id = String::from("nonexistent-id");
 
             let result = repo.update(&target2);
-            assert!(result.is_none());
+            assert!(result.is_err());
         }
 
         #[test]

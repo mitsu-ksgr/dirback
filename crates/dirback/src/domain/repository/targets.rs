@@ -13,7 +13,7 @@ pub trait TargetRepository {
     fn load(&self, target_id: &str) -> Option<Target>;
 
     /// Update a target information.
-    fn update(&mut self, target: &Target) -> Option<Target>;
+    fn update(&mut self, target: &Target) -> anyhow::Result<Target>;
 
     /// Add a new target information.
     fn add(&mut self, name: &str, target_path: &Path) -> anyhow::Result<Target>;
