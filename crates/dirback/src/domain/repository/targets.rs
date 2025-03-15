@@ -3,7 +3,7 @@
 //!
 
 use crate::domain::model::target::Target;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub trait TargetRepository {
     /// Load all target informations.
@@ -17,4 +17,7 @@ pub trait TargetRepository {
 
     /// Add a new target information.
     fn add(&mut self, name: &str, target_path: &Path) -> anyhow::Result<Target>;
+
+    /// Make a backup path of the target.
+    fn make_backup_dir_path(&self, target: &Target) -> PathBuf;
 }

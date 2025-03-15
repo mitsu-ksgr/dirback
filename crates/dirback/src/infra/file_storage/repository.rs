@@ -129,6 +129,10 @@ impl TargetRepository for FileStorageTargetRepository {
         // 5. return new target
         Ok(target)
     }
+
+    fn make_backup_dir_path(&self, target: &Target) -> PathBuf {
+        create_backup_dir_path(&self.base_dir, &target.id)
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -320,7 +324,7 @@ mod tests {
             // test: backup
             let target1 = repo.add("TestTarget", Path::new("tmp")).unwrap();
             let mut target2 = target1.clone();
-            let bk_path = create_backup_dir_path(&repo.base_dir, &target2.id);
+            let bk_path = repo.make_backup_dir_path(&target2);
             let entry = target2.new_backup_entry(&bk_path, "tar.gz");
             let _ = target2.register_backup_entry(entry);
 
@@ -341,6 +345,25 @@ mod tests {
 
             let result = repo.update(&target);
             assert!(result.is_err());
+        }
+    }
+
+    mod make_backup_dir_path {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut repo = FileStorageTargetRepository::new(&temp.path());
+            let target = repo.add("TestTarget", Path::new("target")).unwrap();
+
+            let mut expect = temp.path();
+            for part in [TARGET_INFO_DIR_NAME, &target.id, BACKUP_DIR_NAME] {
+                expect.push(part);
+            }
+
+            let result = repo.make_backup_dir_path(&target);
+            assert_eq!(result, expect);
         }
     }
 }

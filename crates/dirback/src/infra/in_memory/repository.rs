@@ -7,7 +7,7 @@
 
 use crate::domain::model::target::Target;
 use crate::domain::repository::targets::TargetRepository;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub struct InMemoryTargetRepository {
     targets: Vec<Target>,
@@ -46,6 +46,11 @@ impl TargetRepository for InMemoryTargetRepository {
         let target = Target::new(&new_id.to_string(), name, &target_path);
         self.targets.push(target.clone());
         Ok(target)
+    }
+
+    /// For testing.
+    fn make_backup_dir_path(&self, target: &Target) -> PathBuf {
+        PathBuf::new()
     }
 }
 
