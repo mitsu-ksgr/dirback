@@ -32,7 +32,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let service = TargzBackupService::new();
         let ts = chrono::Utc::now().to_rfc3339();
         let ts_filename = "timestamp.txt";
 

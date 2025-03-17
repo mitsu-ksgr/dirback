@@ -49,7 +49,7 @@ impl TargetRepository for InMemoryTargetRepository {
     }
 
     /// For testing.
-    fn make_backup_dir_path(&self, target: &Target) -> PathBuf {
+    fn make_backup_dir_path(&self, _target: &Target) -> PathBuf {
         PathBuf::new()
     }
 }
@@ -158,7 +158,7 @@ mod tests {
             let backup_dir = PathBuf::from(&format!("/tmp/dirback/targets/{}/backups", target.id));
             let entry = target.new_backup_entry(&backup_dir, "tar.gz");
             let _ = target.register_backup_entry(entry);
-            repo.update(&target);
+            let _ = repo.update(&target);
 
             let target = repo.load(&id).unwrap();
             assert_ne!(target.backups.len(), before_update.backups.len());
