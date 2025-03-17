@@ -79,6 +79,10 @@ impl Target {
         self.backups.push(entry);
         Ok(())
     }
+
+    pub fn find_backup_entry(&self, backup_id: u32) -> Option<BackupEntry> {
+        self.backups.iter().find(|&b| b.id == backup_id).cloned()
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -201,6 +205,37 @@ mod tests {
             assert!(result.is_err());
             assert_eq!(result, Err(TargetError::DuplicateId));
             assert_eq!(target.backups.len(), 1);
+        }
+    }
+
+    mod test_find_backup_entry {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let mut target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
+
+            for i in 1..5 {
+                let entry = target.new_backup_entry(&backup_dir, "tar.gz");
+                let _ = target.register_backup_entry(entry.clone());
+            }
+
+            let id = 3;
+            let entry = target.find_backup_entry(id);
+            assert!(entry.is_some());
+
+            let entry = entry.unwrap();
+            assert_eq!(entry.id, id);
+        }
+
+        #[test]
+        fn it_return_none_if_non_exixtent_id() {
+            let mut target = prepare_target();
+            let backup_dir = prepare_backup_dir(&target);
+
+            let entry = target.find_backup_entry(123);
+            assert!(entry.is_none());
         }
     }
 
