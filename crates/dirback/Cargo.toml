@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 jsonfile.workspace = true
 mktemp.workspace = true
+targz.workspace = true
 
 anyhow = { workspace = true }
 chrono = { version = "0.4.40", features = ["serde"] }
