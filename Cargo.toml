@@ -1,14 +1,14 @@
 [workspace]
-members = ["crates/*"]
+members = ["crates/*/*"]
 resolver = "2"
 
 [workspace.package]
 edition = "2024"
 
 [workspace.dependencies]
-jsonfile = { path = "crates/jsonfile" }
-mktemp = { path = "crates/mktemp" }
-targz = { path = "crates/targz" }
+jsonfile = { path = "crates/lib/jsonfile" }
+mktemp = { path = "crates/lib/mktemp" }
+targz = { path = "crates/lib/targz" }
 
 anyhow = "1.0.97"
 thiserror = "2.0.12"
