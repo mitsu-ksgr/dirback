@@ -34,14 +34,23 @@ impl<'a, R: TargetRepository, B: BackupService> BackupUsecase<'a, R, B> {
         entry.note = note.to_string();
 
         // Backup
-        self.backup_service.backup(&target.path, &entry.path);
+        self.backup_service.backup(&target.path, &entry.path)?;
 
-        // Save target.
-        // TODO: Error handling?
-        let _ = target.register_backup_entry(entry)?;
-        let _ = self.repo.update(&target);
+        // Save the backup entry.
+        loop {
+            if let Err(_) = target.register_backup_entry(entry) {
+                break;
+            }
+            if let Err(_) = self.repo.update(&target) {
+                break;
+            }
+            return Ok(());
+        }
 
-        Ok(())
+        // TODO: remove backup file??
+        // The backup was created successfully,
+        // but failed to save the backup entry.
+        anyhow::bail!("Error: failed to save the backup entry.");
     }
 }
 
@@ -51,43 +60,14 @@ impl<'a, R: TargetRepository, B: BackupService> BackupUsecase<'a, R, B> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::service::backup_service::BackupService;
     use crate::infra::repository::in_memory::InMemoryTargetRepository;
-    use std::cell::RefCell;
+    use crate::usecase::usecase_test_helper::*;
     use std::path::Path;
-    use std::rc::Rc;
-
-    struct TestBackupService {
-        backup_counter: Rc<RefCell<usize>>,
-    }
-
-    impl TestBackupService {
-        fn new() -> (Self, Rc<RefCell<usize>>) {
-            let counter = Rc::new(RefCell::new(0));
-            (
-                Self {
-                    backup_counter: counter.clone(),
-                },
-                counter,
-            )
-        }
-    }
-
-    impl BackupService for TestBackupService {
-        fn backup(&self, src: &Path, dest: &Path) -> anyhow::Result<()> {
-            *self.backup_counter.borrow_mut() += 1;
-            Ok(())
-        }
-
-        fn restore(&self, src: &Path, dest: &Path) -> anyhow::Result<()> {
-            Ok(())
-        }
-    }
 
     #[test]
     fn it_works() {
         let mut repo = InMemoryTargetRepository::new();
-        let (backup_service, backup_counter) = TestBackupService::new();
+        let (backup_service, backup_counter, _) = TestBackupService::new();
 
         let target_name = "Test target";
         let target_path = Path::new("/tmp/path/to/target");
@@ -98,7 +78,8 @@ mod tests {
 
         {
             let mut backup = BackupUsecase::new(&mut repo, &backup_service);
-            let _ = backup.execute(&target_id, "this is test backup");
+            let result = backup.execute(&target_id, "this is test backup");
+            assert!(result.is_ok());
         }
 
         let target = repo.load(&target_id).unwrap();
@@ -117,7 +98,7 @@ mod tests {
     #[test]
     fn it_can_be_called_multiple_times() {
         let mut repo = InMemoryTargetRepository::new();
-        let (backup_service, backup_counter) = TestBackupService::new();
+        let (backup_service, backup_counter, _) = TestBackupService::new();
 
         let target1 = repo
             .add("Target1", Path::new("/tmp/path/to/target1"))
