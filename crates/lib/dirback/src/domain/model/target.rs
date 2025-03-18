@@ -216,7 +216,7 @@ mod tests {
             let mut target = prepare_target();
             let backup_dir = prepare_backup_dir(&target);
 
-            for i in 1..5 {
+            for _ in 1..5 {
                 let entry = target.new_backup_entry(&backup_dir, "tar.gz");
                 let _ = target.register_backup_entry(entry.clone());
             }
@@ -231,8 +231,7 @@ mod tests {
 
         #[test]
         fn it_return_none_if_non_exixtent_id() {
-            let mut target = prepare_target();
-            let backup_dir = prepare_backup_dir(&target);
+            let target = prepare_target();
 
             let entry = target.find_backup_entry(123);
             assert!(entry.is_none());
