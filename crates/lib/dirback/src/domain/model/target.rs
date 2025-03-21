@@ -72,7 +72,7 @@ impl Target {
 
     /// Add a backup entry.
     pub fn register_backup_entry(&mut self, entry: BackupEntry) -> Result<(), TargetError> {
-        if let Some(_) = self.backups.iter().find(|&b| b.id == entry.id) {
+        if self.backups.iter().any(|b| b.id == entry.id) {
             return Err(TargetError::DuplicateId);
         }
 

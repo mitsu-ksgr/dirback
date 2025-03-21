@@ -37,12 +37,12 @@ fn create_target_info_dir_path(base_dir: &Path, target_id: Option<&str>) -> Path
 }
 
 fn create_target_info_file_path(base_dir: &Path, target_id: &str) -> PathBuf {
-    let path = create_target_info_dir_path(base_dir, Some(&target_id));
+    let path = create_target_info_dir_path(base_dir, Some(target_id));
     path.join(TARGET_INFO_FILE_NAME)
 }
 
 fn create_backup_dir_path(base_dir: &Path, target_id: &str) -> PathBuf {
-    let path = create_target_info_dir_path(base_dir, Some(&target_id));
+    let path = create_target_info_dir_path(base_dir, Some(target_id));
     path.join(BACKUP_DIR_NAME)
 }
 
@@ -62,7 +62,7 @@ impl FileStorageTargetRepository {
             base_dir: base_dir.to_path_buf(),
         };
 
-        let _ = repo.ensure_directory_structure();
+        repo.ensure_directory_structure();
         repo
     }
 
@@ -95,12 +95,8 @@ impl TargetRepository for FileStorageTargetRepository {
     }
 
     fn load(&self, target_id: &str) -> Option<Target> {
-        let info_path = create_target_info_file_path(&self.base_dir, &target_id);
-
-        match jsonfile::read(&info_path) {
-            Ok(target) => target,
-            Err(_) => None,
-        }
+        let info_path = create_target_info_file_path(&self.base_dir, target_id);
+        jsonfile::read(&info_path).unwrap_or_default()
     }
 
     fn update(&mut self, target: &Target) -> anyhow::Result<Target> {
@@ -112,7 +108,7 @@ impl TargetRepository for FileStorageTargetRepository {
     fn add(&mut self, name: &str, target_path: &Path) -> anyhow::Result<Target> {
         // 1. make a new target
         let new_id = uuid::Uuid::new_v4();
-        let target = Target::new(&new_id.to_string(), name, &target_path);
+        let target = Target::new(&new_id.to_string(), name, target_path);
 
         // 2. make directory for target-info.
         let dir = create_target_info_dir_path(&self.base_dir, Some(&target.id));

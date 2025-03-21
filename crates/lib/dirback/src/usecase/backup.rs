@@ -37,13 +37,15 @@ impl<'a, R: TargetRepository, B: BackupService> BackupUsecase<'a, R, B> {
         self.backup_service.backup(&target.path, &entry.path)?;
 
         // Save the backup entry.
+        #[allow(clippy::never_loop)]
         loop {
-            if let Err(_) = target.register_backup_entry(entry) {
+            if target.register_backup_entry(entry).is_err() {
                 break;
             }
-            if let Err(_) = self.repo.update(&target) {
+            if self.repo.update(&target).is_err() {
                 break;
             }
+
             return Ok(());
         }
 

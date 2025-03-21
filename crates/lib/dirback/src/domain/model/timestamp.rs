@@ -19,7 +19,7 @@ impl Timestamp {
     }
 
     pub fn from_utc(ts: &DateTime<Utc>) -> Self {
-        Self(ts.clone())
+        Self(*ts)
     }
 
     /// Parses a `YYYYMMDDThhmmssZ` format string into a Timestamp value.

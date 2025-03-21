@@ -17,7 +17,7 @@ impl<R: TargetRepository> RegisterTargetUsecase<R> {
     }
 
     pub fn execute(&mut self, target_name: &str, target_path: &Path) -> anyhow::Result<()> {
-        self.repo.add(target_name, &target_path)?;
+        self.repo.add(target_name, target_path)?;
         Ok(())
     }
 }

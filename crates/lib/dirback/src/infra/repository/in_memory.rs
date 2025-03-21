@@ -43,7 +43,7 @@ impl TargetRepository for InMemoryTargetRepository {
 
     fn add(&mut self, name: &str, target_path: &Path) -> anyhow::Result<Target> {
         let new_id = uuid::Uuid::new_v4();
-        let target = Target::new(&new_id.to_string(), name, &target_path);
+        let target = Target::new(&new_id.to_string(), name, target_path);
         self.targets.push(target.clone());
         Ok(target)
     }

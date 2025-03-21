@@ -23,11 +23,7 @@ pub fn data_dir() -> Option<PathBuf> {
     let pkgname = env!("CARGO_PKG_NAME");
 
     // https://docs.rs/directories/6.0.0/directories/struct.ProjectDirs.html
-    if let Some(pd) = ProjectDirs::from("", "", pkgname) {
-        Some(pd.data_dir().to_path_buf())
-    } else {
-        None
-    }
+    ProjectDirs::from("", "", pkgname).map(|pd| pd.data_dir().to_path_buf())
 }
 
 #[cfg(test)]
