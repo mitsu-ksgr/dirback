@@ -1,10 +1,10 @@
 //!
-//! # model module
+//! # DTO
 //!
 
 pub mod backup_entry;
 pub mod target;
-pub mod timestamp;
 
+pub use crate::domain::model::timestamp::Timestamp;
 pub use backup_entry::BackupEntry;
 pub use target::Target;

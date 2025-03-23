@@ -6,6 +6,7 @@ resolver = "2"
 edition = "2024"
 
 [workspace.dependencies]
+dirback = { path = "crates/lib/dirback" }
 jsonfile = { path = "crates/lib/jsonfile" }
 mktemp = { path = "crates/lib/mktemp" }
 targz = { path = "crates/lib/targz" }

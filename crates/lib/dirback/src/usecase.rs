@@ -3,6 +3,7 @@
 //!
 
 pub mod backup;
+pub mod dto;
 pub mod register_target;
 pub mod restore;
 
