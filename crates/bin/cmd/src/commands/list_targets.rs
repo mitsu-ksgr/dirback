@@ -8,7 +8,7 @@ use dirback::infra::repository::in_memory::InMemoryTargetRepository;
 pub struct ListTargets;
 
 impl cmd::Command for ListTargets {
-    fn execute(&self, _args: Vec<String>) -> anyhow::Result<()> {
+    fn execute(&self, _params: &cmd::CmdParams) -> anyhow::Result<()> {
         // TODO: Repository
         let repo = InMemoryTargetRepository::new();
 

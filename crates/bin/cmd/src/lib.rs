@@ -2,10 +2,43 @@
 //! # dirback cmd lib
 //!
 
+use dirback::infra::app_path;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
+//-----------------------------------------------------------------------------
+//  Args
+//-----------------------------------------------------------------------------
+pub struct CmdParams {
+    pub command: String,
+    pub args: Vec<String>,
+    pub basedir: PathBuf,
+}
+
+impl CmdParams {
+    pub fn build(args: &[String]) -> anyhow::Result<Self> {
+        if args.len() == 1 {
+            anyhow::bail!("No command specified.");
+        }
+
+        // TODO: make it customizable?
+        let basedir = app_path::data_dir().ok_or_else(|| {
+            anyhow::anyhow!("Failed to get path to directory for application data.")
+        })?;
+
+        Ok(Self {
+            command: args[1].to_string(),
+            args: args[2..].to_vec(),
+            basedir,
+        })
+    }
+}
+
+//-----------------------------------------------------------------------------
+//  Commands
+//-----------------------------------------------------------------------------
 pub trait Command {
-    fn execute(&self, args: Vec<String>) -> anyhow::Result<()>;
+    fn execute(&self, params: &CmdParams) -> anyhow::Result<()>;
 }
 
 #[derive(Default)]
@@ -24,10 +57,10 @@ impl CommandInvoker {
         self.commands.insert(name.to_string(), command);
     }
 
-    pub fn execute(&self, command_name: &str, args: Vec<String>) -> anyhow::Result<()> {
-        match self.commands.get(command_name) {
-            Some(cmd) => cmd.execute(args),
-            None => anyhow::bail!("Unknown command: {}", command_name),
+    pub fn execute(&self, params: &CmdParams) -> anyhow::Result<()> {
+        match self.commands.get(&params.command) {
+            Some(cmd) => cmd.execute(params),
+            None => anyhow::bail!("Unknown command: '{}'", params.command),
         }
     }
 }
