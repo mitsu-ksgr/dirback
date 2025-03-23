@@ -9,6 +9,7 @@ use crate::domain::model::target::Target;
 use crate::domain::repository::targets::TargetRepository;
 use std::path::{Path, PathBuf};
 
+#[derive(Default)]
 pub struct InMemoryTargetRepository {
     targets: Vec<Target>,
 }

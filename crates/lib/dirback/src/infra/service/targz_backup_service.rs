@@ -5,6 +5,7 @@
 use crate::domain::service::backup_service::BackupService;
 use std::path::Path;
 
+#[derive(Default)]
 pub struct TargzBackupService {}
 
 impl TargzBackupService {

@@ -8,6 +8,7 @@ pub trait Command {
     fn execute(&self, args: Vec<String>) -> anyhow::Result<()>;
 }
 
+#[derive(Default)]
 pub struct CommandInvoker {
     commands: HashMap<String, Box<dyn Command>>,
 }
