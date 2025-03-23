@@ -3,18 +3,13 @@
 //!
 
 use dirback::adapter::ListTargetsAdapter;
-use dirback::infra::repository::in_memory::InMemoryTargetRepository;
+use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 
 pub struct ListTargets;
 
 impl cmd::Command for ListTargets {
     fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
-        // TODO: Repository
-        let repo = InMemoryTargetRepository::new();
-
-        println!("* Params");
-        println!("command = {}", params.command);
-        println!("basedir = {:?}", params.basedir);
+        let repo = FileStorageTargetRepository::new(&params.basedir);
 
         let list_targets = ListTargetsAdapter::new(&repo);
         let targets = list_targets.execute()?;
