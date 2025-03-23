@@ -8,9 +8,13 @@ use dirback::infra::repository::in_memory::InMemoryTargetRepository;
 pub struct ListTargets;
 
 impl cmd::Command for ListTargets {
-    fn execute(&self, _params: &cmd::CmdParams) -> anyhow::Result<()> {
+    fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
         // TODO: Repository
         let repo = InMemoryTargetRepository::new();
+
+        println!("* Params");
+        println!("command = {}", params.command);
+        println!("basedir = {:?}", params.basedir);
 
         let list_targets = ListTargetsAdapter::new(&repo);
         let targets = list_targets.execute()?;

@@ -21,10 +21,15 @@ impl CmdParams {
             anyhow::bail!("No command specified.");
         }
 
-        // TODO: make it customizable?
-        let basedir = app_path::data_dir().ok_or_else(|| {
-            anyhow::anyhow!("Failed to get path to directory for application data.")
-        })?;
+        // if DIRBACK_STORE_DIR is set, use it's value.
+        // if not set, use app_path::data_dir.
+        let basedir = std::env::var("DIRBACK_STORE_DIR")
+            .ok()
+            .map(std::path::PathBuf::from)
+            .or_else(app_path::data_dir)
+            .ok_or_else(|| {
+                anyhow::anyhow!("Failed to get path to directory for application data.")
+            })?;
 
         Ok(Self {
             command: args[1].to_string(),

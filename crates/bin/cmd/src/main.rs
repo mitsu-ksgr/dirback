@@ -7,6 +7,13 @@ mod commands;
 fn usage() {
     let s = r#"Usage: dirback <command> [args...]
 
+Path to store backups:
+    if DIRBACK_STORE_DIR is set, use it's value.
+    if not set, use default directory.
+
+    Linux: ~/.local/share/dirback
+    Windows: TODO
+
 Commands:
     help, -h
         Print help.
