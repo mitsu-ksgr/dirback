@@ -72,6 +72,7 @@ fn main() {
     let mut invoker = cmd::CommandInvoker::new();
     invoker.register("list", Box::new(commands::ListTargets));
     invoker.register("register", Box::new(commands::RegisterTarget));
+    invoker.register("show", Box::new(commands::ShowTarget));
 
     if let Err(e) = invoker.execute(&params) {
         eprintln!("Error: {e}");
