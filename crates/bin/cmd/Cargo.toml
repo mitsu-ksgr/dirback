@@ -7,3 +7,6 @@ edition.workspace = true
 dirback.workspace = true
 
 anyhow = { workspace = true }
+
+[dev-dependencies]
+mktemp.workspace = true

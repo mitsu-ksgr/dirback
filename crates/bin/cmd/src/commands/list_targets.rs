@@ -16,7 +16,13 @@ impl cmd::Command for ListTargets {
 
         println!("* Targets ({})", targets.len());
         for target in targets {
-            println!("- {:?}", target);
+            println!(
+                "{}, {}, {}, {}",
+                target.id,
+                target.name,
+                target.path.to_string_lossy(),
+                target.backups.len()
+            );
         }
 
         Ok(())
