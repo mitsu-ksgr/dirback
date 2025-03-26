@@ -15,6 +15,7 @@ impl cmd::Command for ListTargets {
         let targets = list_targets.execute()?;
 
         println!("* Targets ({})", targets.len());
+        println!("id, name, path, backup-count");
         for target in targets {
             println!(
                 "{}, {}, {}, {}",
