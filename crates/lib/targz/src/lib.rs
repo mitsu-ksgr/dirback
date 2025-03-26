@@ -4,7 +4,8 @@
 //! .tar.gz file archiver / extractor.
 //!
 
-use std::path::Path;
+use std::io::Write;
+use std::path::Path; // Required to flush tar data to disk.
 
 /// Archive the specified directory as a tar.gz file.
 ///
@@ -21,10 +22,14 @@ pub fn archive(src: &Path, dest: &Path) -> anyhow::Result<()> {
 
     // Add directory to archive.
     ar.append_dir_all(".", src)?;
-    ar.finish()?;
+
+    // Flush data to disk.
+    let mut enc = ar.into_inner()?;
+    enc.flush()?;
 
     // Copy to dest
-    std::fs::rename(&temp_dest, dest)?;
+    std::fs::copy(&temp_dest, &dest)?;
+    std::fs::remove_file(&temp_dest)?;
 
     Ok(())
 }
