@@ -28,7 +28,7 @@ pub fn archive(src: &Path, dest: &Path) -> anyhow::Result<()> {
     enc.flush()?;
 
     // Copy to dest
-    std::fs::copy(&temp_dest, &dest)?;
+    std::fs::copy(&temp_dest, dest)?;
     std::fs::remove_file(&temp_dest)?;
 
     Ok(())
