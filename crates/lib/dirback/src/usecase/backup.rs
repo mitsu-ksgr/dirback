@@ -4,7 +4,6 @@
 
 use crate::domain::repository::targets::TargetRepository;
 use crate::domain::service::backup_service::BackupService;
-use crate::infra::app_path;
 
 pub struct BackupUsecase<'a, R: TargetRepository, B: BackupService> {
     repo: &'a mut R,
@@ -23,11 +22,7 @@ impl<'a, R: TargetRepository, B: BackupService> BackupUsecase<'a, R, B> {
         let mut target = self.repo.load(target_id).unwrap();
 
         // Make path to the backup file
-        let mut backup_path = app_path::data_dir().unwrap();
-        let parts = ["targets", &target.id, "backups"];
-        for part in &parts {
-            backup_path.push(part);
-        }
+        let backup_path = self.repo.make_backup_dir_path(&target);
 
         // Make a backup entry
         let mut entry = target.new_backup_entry(&backup_path, "tar.gz");
