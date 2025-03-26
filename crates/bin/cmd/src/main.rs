@@ -73,6 +73,7 @@ fn main() {
     invoker.register("list", Box::new(commands::ListTargets));
     invoker.register("register", Box::new(commands::RegisterTarget));
     invoker.register("show", Box::new(commands::ShowTarget));
+    invoker.register("backup", Box::new(commands::BackupTarget));
 
     if let Err(e) = invoker.execute(&params) {
         eprintln!("Error: {e}");
