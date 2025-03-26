@@ -52,6 +52,9 @@ mod tests {
         // Extract test.
         let extr_dir = temp.path().join("extract");
         let result = service.restore(&targz, &extr_dir);
+        if let Err(ref e) = result {
+            println!("{:?}", e);
+        }
         assert!(result.is_ok());
         assert!(
             extr_dir.join(ts_filename).exists(),
