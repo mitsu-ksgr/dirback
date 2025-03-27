@@ -17,6 +17,9 @@ pub struct TempDir {
 }
 
 impl TempDir {
+    // TODO: Rename the method name.
+    // 'new' method is expected to work without failure.
+    // Rename this method to 'build' or something similar.
     pub fn new() -> std::io::Result<Self> {
         let id = uuid::Uuid::new_v4();
         let path = std::env::temp_dir().join(id.to_string());
