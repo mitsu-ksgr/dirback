@@ -26,9 +26,16 @@ impl cmd::Command for ShowTarget {
             println!("Backup count  : {}", target.backups.len());
 
             if !target.backups.is_empty() {
-                // TODO: List backups.
-                println!("* Backups");
-                println!("TODO - list backups.");
+                println!("\n* Backups");
+                for entry in target.backups {
+                    print!("{:0>3}: {}", entry.id, entry.timestamp.to_rfc3339());
+
+                    if !entry.note.is_empty() {
+                        println!(" # {}", entry.note);
+                    } else {
+                        println!();
+                    }
+                }
             }
         } else {
             println!("Target is none (id={target_id}).");
