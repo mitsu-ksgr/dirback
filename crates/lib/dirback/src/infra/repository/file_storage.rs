@@ -142,7 +142,6 @@ impl TargetRepository for FileStorageTargetRepository {
                 "Target('{target_id}') does not have specified backup(id='{backup_id}')."
             );
         }
-
     }
 
     fn delete_target(&mut self, target_id: &str) -> anyhow::Result<Target> {
@@ -407,7 +406,10 @@ mod tests {
 
             let entry = result.unwrap();
             assert_eq!(entry.id, del_entry.id);
-            assert!(!del_entry.path.exists(), "The backup file should be deleted.");
+            assert!(
+                !del_entry.path.exists(),
+                "The backup file should be deleted."
+            );
 
             let target = repo.load(&target.id).unwrap();
             assert_eq!(target.backups.len(), before_backup_count - 1);
