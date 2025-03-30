@@ -16,6 +16,7 @@
 //! ```
 //!
 
+use crate::domain::model::backup_entry::BackupEntry;
 use crate::domain::model::target::Target;
 use crate::domain::repository::targets::TargetRepository;
 use std::path::{Path, PathBuf};
@@ -124,6 +125,34 @@ impl TargetRepository for FileStorageTargetRepository {
 
         // 5. return new target
         Ok(target)
+    }
+
+    fn delete_backup(&mut self, target_id: &str, backup_id: u32) -> anyhow::Result<BackupEntry> {
+        let mut target = self
+            .load(target_id)
+            .ok_or_else(|| anyhow::anyhow!("Target not found ('{target_id}')."))?;
+
+        if let Some(pos) = target.backups.iter().position(|b| b.id == backup_id) {
+            let entry = target.backups.remove(pos);
+            let _ = self.update(&target)?;
+            std::fs::remove_file(&entry.path)?;
+            Ok(entry)
+        } else {
+            anyhow::bail!(
+                "Target('{target_id}') does not have specified backup(id='{backup_id}')."
+            );
+        }
+
+    }
+
+    fn delete_target(&mut self, target_id: &str) -> anyhow::Result<Target> {
+        if let Some(target) = self.load(target_id) {
+            let dir = create_target_info_dir_path(&self.base_dir, Some(&target.id));
+            let _ = std::fs::remove_dir_all(&dir);
+            Ok(target)
+        } else {
+            anyhow::bail!("Target not found ('{target_id}').");
+        }
     }
 
     fn make_backup_dir_path(&self, target: &Target) -> PathBuf {
@@ -340,6 +369,155 @@ mod tests {
 
             let result = repo.update(&target);
             assert!(result.is_err());
+        }
+    }
+
+    mod delete_backup {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut repo = FileStorageTargetRepository::new(&temp.path());
+
+            let mut target = repo.add("TestTarget", Path::new(".")).unwrap();
+            let bkdir = repo.make_backup_dir_path(&target);
+            let mut entries = Vec::new();
+            for i in 1..=3 {
+                let ts = crate::domain::model::timestamp::Timestamp::now();
+                let bk_path = bkdir.join(format!("{:0>3}_{}.test", i, ts.fmt()));
+                let note = format!("TestTarget's backup {i}.");
+                let entry = BackupEntry::new(i, &bk_path, ts, &note);
+                target.backups.push(entry.clone());
+                entries.push(entry);
+
+                // Create test backup file.
+                let _ = std::fs::File::create(&bk_path);
+            }
+
+            let target = repo.update(&target).unwrap();
+            let before_backup_count = target.backups.len();
+
+            let del_entry = &entries[1];
+            let result = repo.delete_backup(&target.id, del_entry.id);
+            if let Err(ref e) = result {
+                println!("ERR: {:?}", e);
+            }
+            assert!(result.is_ok());
+
+            let entry = result.unwrap();
+            assert_eq!(entry.id, del_entry.id);
+            assert!(!del_entry.path.exists(), "The backup file should be deleted.");
+
+            let target = repo.load(&target.id).unwrap();
+            assert_eq!(target.backups.len(), before_backup_count - 1);
+            assert!(
+                target.backups.iter().all(|b| b.id != entry.id),
+                "Deleted backup entry should not be in the repository."
+            );
+        }
+
+        #[test]
+        fn it_returns_err_when_non_existent_target_id() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut repo = FileStorageTargetRepository::new(&temp.path());
+            let result = repo.delete_backup("non-exists-target-id", 1);
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn it_returns_err_when_existent_backup_id() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut repo = FileStorageTargetRepository::new(&temp.path());
+
+            let mut target = repo.add("TestTarget", Path::new(".")).unwrap();
+            let bkdir = repo.make_backup_dir_path(&target);
+            let mut entries = Vec::new();
+            for i in 1..=3 {
+                let ts = crate::domain::model::timestamp::Timestamp::now();
+                let bk_path = bkdir.join(format!("{:0>3}_{}.test", i, ts.fmt()));
+                let note = format!("TestTarget's backup {i}.");
+                let entry = BackupEntry::new(i, &bk_path, ts, &note);
+                target.backups.push(entry.clone());
+                entries.push(entry);
+
+                // Create test backup file.
+                let _ = std::fs::File::create(&bk_path);
+            }
+            let target = repo.update(&target).unwrap();
+
+            let before_backup_count = target.backups.len();
+
+            let result = repo.delete_backup(&target.id, 123);
+            if let Err(ref e) = result {
+                println!("ERR: {:?}", e);
+            }
+            assert!(result.is_err());
+
+            let target = repo.load(&target.id).unwrap();
+            assert_eq!(target.backups.len(), before_backup_count);
+        }
+    }
+
+    mod delete_target {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut repo = FileStorageTargetRepository::new(&temp.path());
+
+            let mut ids = Vec::new();
+            for i in 1..=3 {
+                let name = format!("Test Target {i}");
+                let target = repo.add(&name, Path::new(".")).unwrap();
+                ids.push(target.id);
+            }
+
+            let before_target_count = repo.load_all().unwrap().len();
+
+            let del_target_id = ids[1].clone();
+            let del_target_info_path = temp.path().join("targets").join(&del_target_id);
+            assert!(del_target_info_path.exists());
+
+            let result = repo.delete_target(&del_target_id);
+            assert!(result.is_ok());
+
+            let target = result.unwrap();
+            assert_eq!(target.id, del_target_id);
+            assert!(target.path.exists(), "target.path should not be deleted!!!");
+
+            let targets = repo.load_all().unwrap();
+            assert_eq!(targets.len(), before_target_count - 1);
+            assert!(
+                targets.iter().all(|t| t.id != del_target_id),
+                "Deleted target should not be in the repository."
+            );
+            assert!(
+                !del_target_info_path.exists(),
+                "Deleted target info directory should be deleted."
+            );
+        }
+
+        #[test]
+        fn it_returns_err_when_non_existent_target_id() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut repo = FileStorageTargetRepository::new(&temp.path());
+
+            let mut ids = Vec::new();
+            for i in 1..=3 {
+                let name = format!("Test Target {i}");
+                let target = repo.add(&name, Path::new(".")).unwrap();
+                ids.push(target.id);
+            }
+
+            let before_target_count = repo.load_all().unwrap().len();
+
+            let result = repo.delete_target("non-exists-target-id");
+            assert!(result.is_err());
+
+            let targets = repo.load_all().unwrap();
+            assert_eq!(targets.len(), before_target_count);
         }
     }
 

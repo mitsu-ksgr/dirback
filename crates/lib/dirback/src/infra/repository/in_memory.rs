@@ -5,6 +5,7 @@
 //! No data sharing between instances.
 //!
 
+use crate::domain::model::backup_entry::BackupEntry;
 use crate::domain::model::target::Target;
 use crate::domain::repository::targets::TargetRepository;
 use std::path::{Path, PathBuf};
@@ -47,6 +48,30 @@ impl TargetRepository for InMemoryTargetRepository {
         let target = Target::new(&new_id.to_string(), name, target_path);
         self.targets.push(target.clone());
         Ok(target)
+    }
+
+    fn delete_backup(&mut self, target_id: &str, backup_id: u32) -> anyhow::Result<BackupEntry> {
+        let mut target = self
+            .load(target_id)
+            .ok_or_else(|| anyhow::anyhow!("Target not found ('{}').", target_id))?;
+
+        if let Some(pos) = target.backups.iter().position(|b| b.id == backup_id) {
+            let entry = target.backups.remove(pos);
+            let _ = self.update(&target)?;
+            Ok(entry)
+        } else {
+            anyhow::bail!(
+                "Target('{target_id}') does not have specified backup(id='{backup_id}')."
+            );
+        }
+    }
+
+    fn delete_target(&mut self, target_id: &str) -> anyhow::Result<Target> {
+        if let Some(pos) = self.targets.iter().position(|t| t.id == target_id) {
+            Ok(self.targets.remove(pos))
+        } else {
+            anyhow::bail!("Target not found ('{target_id}')")
+        }
     }
 
     /// For testing.
@@ -177,5 +202,119 @@ mod tests {
         assert_eq!(repo.targets.len(), 1);
         assert_eq!(target.path, path);
         assert_eq!(target.backups.len(), 0);
+    }
+
+    mod delete_backup {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let mut repo = InMemoryTargetRepository::new();
+            let mut target = repo.add("TestTarget", Path::new(".")).unwrap();
+            for i in 1..=3 {
+                let ts = crate::domain::model::timestamp::Timestamp::now();
+                let note = format!("Test target backup {i}");
+                let bk = BackupEntry::new(i, Path::new("."), ts, &note);
+                target.backups.push(bk);
+            }
+            let target = repo.update(&target).unwrap();
+
+            let before_backup_count = target.backups.len();
+
+            let del_id = 2;
+            let result = repo.delete_backup(&target.id, del_id);
+            assert!(result.is_ok());
+
+            let del_bk = result.unwrap();
+            assert_eq!(del_bk.id, del_id);
+
+            let target = repo.load(&target.id).unwrap();
+            assert_eq!(target.backups.len(), before_backup_count - 1);
+            assert!(
+                target.backups.iter().all(|b| b.id != del_bk.id),
+                "Deleted backup entry should not be in the repository."
+            );
+        }
+
+        #[test]
+        fn it_returns_err_when_non_existent_target_id() {
+            let mut repo = InMemoryTargetRepository::new();
+            let result = repo.delete_backup("non-exists-target-id", 1);
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn it_returns_err_when_non_existent_backup_id() {
+            let mut repo = InMemoryTargetRepository::new();
+            let mut target = repo.add("TestTarget", Path::new(".")).unwrap();
+            for i in 1..=3 {
+                let ts = crate::domain::model::timestamp::Timestamp::now();
+                let note = format!("Test target backup {i}");
+                let bk = BackupEntry::new(i, Path::new("."), ts, &note);
+                target.backups.push(bk);
+            }
+            let target = repo.update(&target).unwrap();
+
+            let before_backup_count = target.backups.len();
+
+            let result = repo.delete_backup(&target.id, 123);
+            assert!(result.is_err());
+
+            let target = repo.load(&target.id).unwrap();
+            assert_eq!(target.backups.len(), before_backup_count);
+        }
+    }
+
+    mod delete_target {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let mut repo = InMemoryTargetRepository::new();
+            let mut ids = Vec::<String>::new();
+            for i in 1..=3 {
+                let name = format!("Test Target {i}");
+                let path = PathBuf::from(format!("/tmp/dirback/target{i}"));
+                let target = repo.add(&name, &path).unwrap();
+                ids.push(target.id);
+            }
+
+            let before_target_count = repo.load_all().unwrap().len();
+
+            let del_target_id = ids[1].clone();
+            let result = repo.delete_target(&del_target_id);
+            assert!(result.is_ok());
+
+            let target = result.unwrap();
+            assert_eq!(target.id, del_target_id);
+
+            let targets = repo.load_all().unwrap();
+            assert_eq!(targets.len(), before_target_count - 1);
+
+            assert!(
+                targets.iter().all(|t| t.id != del_target_id),
+                "Deleted target should not be in the repository."
+            );
+        }
+
+        #[test]
+        fn it_returns_err_when_non_existent_target_id() {
+            let mut repo = InMemoryTargetRepository::new();
+            let mut ids = Vec::<String>::new();
+            for i in 1..=3 {
+                let name = format!("Test Target {i}");
+                let path = PathBuf::from(format!("/tmp/dirback/target{i}"));
+                let target = repo.add(&name, &path).unwrap();
+                ids.push(target.id);
+            }
+
+            let before_target_count = repo.load_all().unwrap().len();
+
+            let result = repo.delete_target("non-exists-target-id");
+            assert!(result.is_err());
+
+            let targets = repo.load_all().unwrap();
+            assert_eq!(targets.len(), before_target_count);
+        }
     }
 }
