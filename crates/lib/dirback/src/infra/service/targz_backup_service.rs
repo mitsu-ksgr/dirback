@@ -40,7 +40,7 @@ mod tests {
         let temp = mktemp::TempDir::new().unwrap();
         let test_dir = temp.path().join("origin");
         let _ = std::fs::create_dir_all(&test_dir);
-        let _ = std::fs::write(&test_dir.join(ts_filename), &ts);
+        let _ = std::fs::write(test_dir.join(ts_filename), &ts);
 
         // Archive test.
         let targz = temp.path().join("test.tar.gz");
@@ -62,8 +62,8 @@ mod tests {
             ts_filename
         );
 
-        let src_content = std::fs::read_to_string(&test_dir.join(ts_filename)).unwrap();
-        let ext_content = std::fs::read_to_string(&extr_dir.join(ts_filename)).unwrap();
+        let src_content = std::fs::read_to_string(test_dir.join(ts_filename)).unwrap();
+        let ext_content = std::fs::read_to_string(extr_dir.join(ts_filename)).unwrap();
         assert_eq!(src_content, ext_content);
 
         /*---------- test -----------

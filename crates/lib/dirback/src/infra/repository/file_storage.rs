@@ -172,7 +172,7 @@ mod tests {
         #[test]
         fn withtou_target() {
             let base = Path::new("tmp");
-            let info_path = create_target_info_dir_path(&base, None);
+            let info_path = create_target_info_dir_path(base, None);
             assert_eq!(info_path, base.join(TARGET_INFO_DIR_NAME));
         }
 
@@ -182,7 +182,7 @@ mod tests {
             let target = Target::new("abcd123", "Test target", Path::new("path"));
             let expect = base.join(TARGET_INFO_DIR_NAME).join("abcd123");
 
-            let result = create_target_info_dir_path(&base, Some(&target.id));
+            let result = create_target_info_dir_path(base, Some(&target.id));
             assert_eq!(result, expect);
         }
     }
@@ -198,7 +198,7 @@ mod tests {
             let expect = ["tmp", TARGET_INFO_DIR_NAME, id, TARGET_INFO_FILE_NAME];
             let expect: PathBuf = expect.iter().collect();
 
-            let result = create_target_info_file_path(&base, &id);
+            let result = create_target_info_file_path(base, id);
             assert_eq!(result, expect);
         }
     }
@@ -214,7 +214,7 @@ mod tests {
             let expect = ["tmp", TARGET_INFO_DIR_NAME, id, BACKUP_DIR_NAME];
             let expect: PathBuf = expect.iter().collect();
 
-            let result = create_backup_dir_path(&base, &id);
+            let result = create_backup_dir_path(base, id);
             assert_eq!(result, expect);
         }
     }

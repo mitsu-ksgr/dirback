@@ -113,7 +113,7 @@ mod tests {
     fn test_load() {
         let mut repo = InMemoryTargetRepository::new();
         let path = Path::new("target");
-        let t1 = repo.add("Test Target", &path).unwrap();
+        let t1 = repo.add("Test Target", path).unwrap();
         let t2 = repo.load(&t1.id).unwrap();
         assert_eq!(t1.id, t2.id);
         assert_eq!(t1.path, t2.path);
@@ -127,7 +127,7 @@ mod tests {
             let mut repo = InMemoryTargetRepository::new();
 
             let path = Path::new("target");
-            let mut target = repo.add("Test Target", &path).unwrap();
+            let mut target = repo.add("Test Target", path).unwrap();
             target.path.push("foo");
 
             let id = target.id.to_string();
@@ -148,7 +148,7 @@ mod tests {
             let mut repo = InMemoryTargetRepository::new();
 
             let path = Path::new("target");
-            let target = repo.add("Test Target", &path).unwrap();
+            let target = repo.add("Test Target", path).unwrap();
 
             let mut target2 = target.clone();
             target2.id = String::from("nonexistent-id");
@@ -202,7 +202,7 @@ mod tests {
         let path = Path::new("target");
 
         assert_eq!(repo.targets.len(), 0);
-        let target = repo.add("Test Target", &path).unwrap();
+        let target = repo.add("Test Target", path).unwrap();
 
         assert_eq!(repo.targets.len(), 1);
         assert_eq!(target.path, path);

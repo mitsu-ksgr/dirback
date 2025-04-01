@@ -52,7 +52,7 @@ pub fn extract(src: &Path, dest: &Path) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mktemp;
+    
     use std::path::{Path, PathBuf};
 
     fn list_entry(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
@@ -85,16 +85,16 @@ mod tests {
     fn prepare_test_dir_and_files(temp: &mktemp::TempDir) {
         let dir = temp.path().join("sample");
         let _ = std::fs::create_dir_all(&dir);
-        let _ = std::fs::File::create(&dir.join("foo.txt"));
+        let _ = std::fs::File::create(dir.join("foo.txt"));
 
         let dir = dir.join("foo");
         let _ = std::fs::create_dir_all(&dir);
-        let _ = std::fs::File::create(&dir.join("bar.txt"));
-        let _ = std::fs::File::create(&dir.join(".hiddenfile"));
+        let _ = std::fs::File::create(dir.join("bar.txt"));
+        let _ = std::fs::File::create(dir.join(".hiddenfile"));
 
         let dir = dir.join("bar");
         let _ = std::fs::create_dir_all(&dir);
-        let _ = std::fs::File::create(&dir.join("baz.txt"));
+        let _ = std::fs::File::create(dir.join("baz.txt"));
 
         let dir = dir.join("baz");
         let _ = std::fs::create_dir_all(&dir);

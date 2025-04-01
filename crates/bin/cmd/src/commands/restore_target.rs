@@ -50,16 +50,16 @@ mod tests {
         let _ = std::fs::create_dir_all(&target_path);
 
         let dir = target_path.clone();
-        let _ = std::fs::File::create(&dir.join("foo.txt"));
+        let _ = std::fs::File::create(dir.join("foo.txt"));
 
         let dir = dir.join("foo");
         let _ = std::fs::create_dir_all(&dir);
-        let _ = std::fs::File::create(&dir.join("bar.txt"));
-        let _ = std::fs::File::create(&dir.join(".hiddenfile"));
+        let _ = std::fs::File::create(dir.join("bar.txt"));
+        let _ = std::fs::File::create(dir.join(".hiddenfile"));
 
         let dir = dir.join("bar");
         let _ = std::fs::create_dir_all(&dir);
-        let _ = std::fs::File::create(&dir.join("baz.txt"));
+        let _ = std::fs::File::create(dir.join("baz.txt"));
 
         target_path
     }

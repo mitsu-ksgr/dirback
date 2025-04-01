@@ -54,7 +54,7 @@ mod tests {
         let target_id = target.id.clone();
 
         let bkpath = Path::new("test-backups");
-        let entry = target.new_backup_entry(&bkpath, "tar.gz");
+        let entry = target.new_backup_entry(bkpath, "tar.gz");
         let entry_id = entry.id;
         let _ = target.register_backup_entry(entry);
         let _ = repo.update(&target);
@@ -106,7 +106,7 @@ mod tests {
         let target_id = target.id.clone();
 
         let bkpath = Path::new("test-backups");
-        let entry = target.new_backup_entry(&bkpath, "tar.gz");
+        let entry = target.new_backup_entry(bkpath, "tar.gz");
         let _ = target.register_backup_entry(entry.clone());
         let _ = repo.update(&target);
 

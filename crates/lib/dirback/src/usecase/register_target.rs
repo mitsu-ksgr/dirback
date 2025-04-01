@@ -40,7 +40,7 @@ mod tests {
         let targets = usecase.repo.load_all().unwrap();
         assert_eq!(targets.len(), 0);
 
-        let result = usecase.execute(target_name, &target_path);
+        let result = usecase.execute(target_name, target_path);
         assert!(result.is_ok());
 
         let target = result.unwrap();

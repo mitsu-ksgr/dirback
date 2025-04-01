@@ -86,7 +86,7 @@ mod tests {
         let bkpath: PathBuf = bkpath_parts.iter().collect();
         let note = "this is test backup file.";
 
-        let src = BackupEntry::new(id, &bkpath, ts.clone(), &note);
+        let src = BackupEntry::new(id, &bkpath, ts.clone(), note);
 
         let s = serde_json::to_string(&src);
         assert!(s.is_ok(), "it should be serializable into json.");

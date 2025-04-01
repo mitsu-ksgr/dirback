@@ -23,7 +23,7 @@ pub fn write<T: Serialize>(path: &Path, data: &T) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mktemp;
+    
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
