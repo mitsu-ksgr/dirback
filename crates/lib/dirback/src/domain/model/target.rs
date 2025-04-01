@@ -95,7 +95,7 @@ mod tests {
 
     fn prepare_target() -> Target {
         let target_id = Uuid::new_v4();
-        let target_path = Path::new("/tmp/path/to/target-dir");
+        let target_path = Path::new("path-to-target-dir");
         Target::new(&target_id.to_string(), "Test Target", target_path)
     }
 

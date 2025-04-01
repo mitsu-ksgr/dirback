@@ -35,7 +35,7 @@ mod tests {
         let mut usecase = RegisterTargetUsecase::new(&mut repo);
 
         let target_name = "Test Target";
-        let target_path = Path::new("/tmp/path/to/target");
+        let target_path = Path::new("path-to-target");
 
         let targets = usecase.repo.load_all().unwrap();
         assert_eq!(targets.len(), 0);
@@ -45,7 +45,7 @@ mod tests {
 
         let target = result.unwrap();
         assert_eq!(target.name, "Test Target");
-        assert_eq!(target.path, Path::new("/tmp/path/to/target"));
+        assert_eq!(target.path, Path::new("path-to-target"));
 
         let targets = usecase.repo.load_all().unwrap();
         assert_eq!(targets.len(), 1);

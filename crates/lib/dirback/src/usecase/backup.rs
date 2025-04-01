@@ -67,7 +67,7 @@ mod tests {
         let (backup_service, backup_counter, _) = TestBackupService::new();
 
         let target_name = "Test target";
-        let target_path = Path::new("/tmp/path/to/target");
+        let target_path = Path::new("path-to-target");
 
         let target = repo.add(target_name, target_path).unwrap();
         let target_id = target.id;
@@ -97,15 +97,11 @@ mod tests {
         let mut repo = InMemoryTargetRepository::new();
         let (backup_service, backup_counter, _) = TestBackupService::new();
 
-        let target1 = repo
-            .add("Target1", Path::new("/tmp/path/to/target1"))
-            .unwrap();
+        let target1 = repo.add("Target1", Path::new("target1")).unwrap();
         let target1_id = target1.id;
         let before_backup_count = target1.backups.len();
 
-        let target2 = repo
-            .add("Target2", Path::new("/tmp/path/to/target2"))
-            .unwrap();
+        let target2 = repo.add("Target2", Path::new("target2")).unwrap();
         let target2_id = target2.id;
 
         {

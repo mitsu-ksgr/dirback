@@ -100,7 +100,7 @@ mod tests {
         assert_eq!(repo.targets.len(), 0);
         for i in 1..=10 {
             let name = format!("Test Target {i}");
-            let path = PathBuf::from(format!("/tmp/dirback/target{i}"));
+            let path = PathBuf::from(format!("target{i}"));
             let _ = repo.add(&name, &path);
         }
         assert_eq!(repo.targets.len(), 10);
@@ -112,7 +112,7 @@ mod tests {
     #[test]
     fn test_load() {
         let mut repo = InMemoryTargetRepository::new();
-        let path = Path::new("/tmp/dirback/target");
+        let path = Path::new("target");
         let t1 = repo.add("Test Target", &path).unwrap();
         let t2 = repo.load(&t1.id).unwrap();
         assert_eq!(t1.id, t2.id);
@@ -126,7 +126,7 @@ mod tests {
         fn it_works() {
             let mut repo = InMemoryTargetRepository::new();
 
-            let path = Path::new("/tmp/dirback/target");
+            let path = Path::new("target");
             let mut target = repo.add("Test Target", &path).unwrap();
             target.path.push("foo");
 
@@ -134,18 +134,20 @@ mod tests {
             let result = repo.update(&target);
             assert!(result.is_ok());
 
+            let expect = Path::new("target").join("foo");
+
             let result = result.unwrap();
-            assert_eq!(result.path.to_string_lossy(), "/tmp/dirback/target/foo");
+            assert_eq!(result.path, expect);
 
             let result = repo.load(&id).unwrap();
-            assert_eq!(result.path.to_string_lossy(), "/tmp/dirback/target/foo");
+            assert_eq!(result.path, expect);
         }
 
         #[test]
         fn it_returns_err_when_id_does_not_exists() {
             let mut repo = InMemoryTargetRepository::new();
 
-            let path = Path::new("/tmp/dirback/target");
+            let path = Path::new("target");
             let target = repo.add("Test Target", &path).unwrap();
 
             let mut target2 = target.clone();
@@ -156,18 +158,21 @@ mod tests {
         }
 
         #[test]
-        fn it_works2() {
+        fn it_work_when_update_backups() {
             let mut repo = InMemoryTargetRepository::new();
+
+            let make_backup_path = |target_id: &str| -> std::path::PathBuf {
+                ["dirback", target_id, "backups"].iter().collect()
+            };
 
             // Add test targets.
             for i in 1..=3 {
                 let name = format!("target{i}");
-                let path = PathBuf::from(format!("/tmp/{name}"));
+                let path = PathBuf::from(format!("path-to-{name}"));
                 let mut target = repo.add(&name, &path).unwrap();
 
                 // Add backups.
-                let backup_dir =
-                    PathBuf::from(&format!("/tmp/dirback/targets/{}/backups", target.id));
+                let backup_dir = make_backup_path(&target.id);
                 for _k in 1..=(2 + i) {
                     let entry = target.new_backup_entry(&backup_dir, "tar.gz");
                     let _ = target.register_backup_entry(entry);
@@ -181,7 +186,7 @@ mod tests {
             let mut target = repo.load(&id).unwrap();
             let before_update = target.clone();
 
-            let backup_dir = PathBuf::from(&format!("/tmp/dirback/targets/{}/backups", target.id));
+            let backup_dir = make_backup_path(&target.id);
             let entry = target.new_backup_entry(&backup_dir, "tar.gz");
             let _ = target.register_backup_entry(entry);
             let _ = repo.update(&target);
@@ -194,7 +199,7 @@ mod tests {
     #[test]
     fn test_add() {
         let mut repo = InMemoryTargetRepository::new();
-        let path = Path::new("/tmp/dirback/target");
+        let path = Path::new("target");
 
         assert_eq!(repo.targets.len(), 0);
         let target = repo.add("Test Target", &path).unwrap();
@@ -274,7 +279,7 @@ mod tests {
             let mut ids = Vec::<String>::new();
             for i in 1..=3 {
                 let name = format!("Test Target {i}");
-                let path = PathBuf::from(format!("/tmp/dirback/target{i}"));
+                let path = PathBuf::from(format!("target{i}"));
                 let target = repo.add(&name, &path).unwrap();
                 ids.push(target.id);
             }
@@ -303,7 +308,7 @@ mod tests {
             let mut ids = Vec::<String>::new();
             for i in 1..=3 {
                 let name = format!("Test Target {i}");
-                let path = PathBuf::from(format!("/tmp/dirback/target{i}"));
+                let path = PathBuf::from(format!("target{i}"));
                 let target = repo.add(&name, &path).unwrap();
                 ids.push(target.id);
             }
