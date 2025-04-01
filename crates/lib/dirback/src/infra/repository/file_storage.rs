@@ -451,9 +451,6 @@ mod tests {
             let before_backup_count = target.backups.len();
 
             let result = repo.delete_backup(&target.id, 123);
-            if let Err(ref e) = result {
-                println!("ERR: {:?}", e);
-            }
             assert!(result.is_err());
 
             let target = repo.load(&target.id).unwrap();
