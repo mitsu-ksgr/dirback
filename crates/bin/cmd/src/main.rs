@@ -85,6 +85,7 @@ fn main() {
     invoker.register("backup", Box::new(commands::BackupTarget));
     invoker.register("restore", Box::new(commands::RestoreTarget));
     invoker.register("delete", Box::new(commands::DeleteBackup::new()));
+    invoker.register("delete-target", Box::new(commands::DeleteTarget::new()));
 
     if let Err(e) = invoker.execute(&params) {
         eprintln!("Error: {e}");
