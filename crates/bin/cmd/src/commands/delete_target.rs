@@ -3,7 +3,7 @@
 //!
 
 use anyhow::Context;
-use dirback::adapter::ShowTargetAdapter;
+use dirback::adapter::GetTargetAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 use dirback::usecase::delete_target::DeleteTargetUsecase;
 
@@ -31,7 +31,7 @@ impl cmd::Command for DeleteTarget {
         let target_id = params.args[0].to_string();
 
         let mut repo = FileStorageTargetRepository::new(&params.basedir);
-        let target = ShowTargetAdapter::new(&repo)
+        let target = GetTargetAdapter::new(&repo)
             .execute(&target_id)
             .context(format!("Target not found ('{target_id}')"))?;
 

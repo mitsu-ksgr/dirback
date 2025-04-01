@@ -2,7 +2,7 @@
 //! # ShowTarget command
 //!
 
-use dirback::adapter::ShowTargetAdapter;
+use dirback::adapter::GetTargetAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 
 pub struct ShowTarget;
@@ -16,7 +16,7 @@ impl cmd::Command for ShowTarget {
         let target_id = params.args[0].to_string();
 
         let repo = FileStorageTargetRepository::new(&params.basedir);
-        let adapter = ShowTargetAdapter::new(&repo);
+        let adapter = GetTargetAdapter::new(&repo);
 
         if let Some(target) = adapter.execute(&target_id) {
             println!("* Target Information");
@@ -59,7 +59,7 @@ mod tests {
 
         // Test target
         let mut repo = FileStorageTargetRepository::new(&basedir);
-        let target = repo.add("TestTarget", std::path::Path::new(".")).unwrap();
+        let _ = repo.add("TestTarget", std::path::Path::new(".")).unwrap();
 
         // CmdParams
         let args: Vec<String> = ["test", "show", ""].iter().map(|s| s.to_string()).collect();

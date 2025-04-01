@@ -1,15 +1,15 @@
 //!
-//! # Adapter: ShowTarget
+//! # Adapter: GetTarget
 //!
 
 use crate::domain::repository::targets::TargetRepository;
 use crate::usecase::dto::Target;
 
-pub struct ShowTargetAdapter<'a, R: TargetRepository> {
+pub struct GetTargetAdapter<'a, R: TargetRepository> {
     repo: &'a R,
 }
 
-impl<'a, R: TargetRepository> ShowTargetAdapter<'a, R> {
+impl<'a, R: TargetRepository> GetTargetAdapter<'a, R> {
     pub fn new(repo: &'a R) -> Self {
         Self { repo }
     }
@@ -35,7 +35,7 @@ mod tests {
             ids.push(target.id.clone());
         }
 
-        let adapter = ShowTargetAdapter::new(&repo);
+        let adapter = GetTargetAdapter::new(&repo);
         let target = adapter.execute(&ids[0]);
         assert!(target.is_some());
 
@@ -48,8 +48,8 @@ mod tests {
 
     #[test]
     fn it_return_none_if_non_existing_target_id() {
-        let mut repo = InMemoryTargetRepository::new();
-        let adapter = ShowTargetAdapter::new(&repo);
+        let repo = InMemoryTargetRepository::new();
+        let adapter = GetTargetAdapter::new(&repo);
         let target = adapter.execute("non-existing-target-id");
         assert!(target.is_none());
     }

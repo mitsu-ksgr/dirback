@@ -2,8 +2,8 @@
 //! # adapter module
 //!
 
+pub mod get_target;
 pub mod list_targets;
-pub mod show_target;
 
+pub use get_target::GetTargetAdapter;
 pub use list_targets::ListTargetsAdapter;
-pub use show_target::ShowTargetAdapter;

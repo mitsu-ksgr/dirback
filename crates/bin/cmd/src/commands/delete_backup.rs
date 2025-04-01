@@ -3,7 +3,7 @@
 //!
 
 use anyhow::Context;
-use dirback::adapter::ShowTargetAdapter;
+use dirback::adapter::GetTargetAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 use dirback::usecase::delete_backup::DeleteBackupUsecase;
 
@@ -36,7 +36,7 @@ impl cmd::Command for DeleteBackup {
             .context(format!("Invalid backup ID ('{backup_id}')."))?;
 
         let mut repo = FileStorageTargetRepository::new(&params.basedir);
-        let target = ShowTargetAdapter::new(&repo)
+        let target = GetTargetAdapter::new(&repo)
             .execute(&target_id)
             .context(format!("Target not found ('{target_id}')"))?;
 
