@@ -23,23 +23,23 @@ Commands:
     list
         Print target list.
 
-    register [TARGET_PATH]
+    register <TARGET_PATH>
         Register new target.
 
-    show [TARGET_ID]
+    show <TARGET_ID>
         Show target information.
 
-    backup [TARGET_ID] [NOTE]
+    backup <TARGET_ID> [NOTE]
         Take a backup of the target.
 
-    restore [TARGET_ID] [BACKUP_ID]
+    restore <TARGET_ID> <BACKUP_ID>
         Restore from the specified backup.
 
-    delete [TARGET_ID] [BACKUP_ID]
+    delete <TARGET_ID> <BACKUP_ID>
         Delete the backup.
         This action cannnot be undone.
 
-    delete-target [TARGET_ID]
+    delete-target <TARGET_ID>
         Delete the target.
         The target's backups will also be deleted.
         This action cannnot be undone.
