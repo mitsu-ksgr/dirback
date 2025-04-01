@@ -34,6 +34,15 @@ Commands:
 
     restore [TARGET_ID] [BACKUP_ID]
         Restore from the specified backup.
+
+    delete [TARGET_ID] [BACKUP_ID]
+        Delete the backup.
+        This action cannnot be undone.
+
+    delete-target [TARGET_ID]
+        Delete the target.
+        The target's backups will also be deleted.
+        This action cannnot be undone.
 "#;
 
     println!("{s}");
@@ -75,6 +84,7 @@ fn main() {
     invoker.register("show", Box::new(commands::ShowTarget));
     invoker.register("backup", Box::new(commands::BackupTarget));
     invoker.register("restore", Box::new(commands::RestoreTarget));
+    invoker.register("delete", Box::new(commands::DeleteBackup::new()));
 
     if let Err(e) = invoker.execute(&params) {
         eprintln!("Error: {e}");
