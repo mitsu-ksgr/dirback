@@ -4,11 +4,6 @@ Dirback
 - A simple directory backup tool.
 
 
-## Todo
-- Fix the paths in tests to be runnable cross platform.
-- Manage backup directory path
-
-
 ## Notes
 ### Base path
 - `APP_DATA_PATH`
