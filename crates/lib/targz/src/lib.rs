@@ -52,7 +52,7 @@ pub fn extract(src: &Path, dest: &Path) -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     use std::path::{Path, PathBuf};
 
     fn list_entry(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
