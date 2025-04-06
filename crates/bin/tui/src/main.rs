@@ -40,7 +40,9 @@ fn main() {
         eprintln!("Error: {e}");
         std::process::exit(1);
     });
-    info!("Base dir: {}", basedir.display());
+
+    info!("Start Dirback TUI");
+    info!("Dirback base dir: {}", basedir.display());
     info!("Log file: {}", logfile.display());
 
     if let Err(ref e) = dirback_tui::run(&basedir) {

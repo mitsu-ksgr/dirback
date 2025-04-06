@@ -8,6 +8,7 @@ use ratatui::crossterm::{
 };
 
 mod app;
+mod controller;
 mod view;
 
 pub fn run(basedir: &std::path::Path) -> anyhow::Result<()> {
@@ -16,9 +17,13 @@ pub fn run(basedir: &std::path::Path) -> anyhow::Result<()> {
 
     // Application loop.
     let mut app = app::App::new(basedir);
+    app.fetch_targets();
+    //app.set_status(app::Status::Info, "Hello dirback!"); // TODO: test.
+
+    let mut view = view::View::default();
 
     loop {
-        terminal.draw(|f| view::draw(f, &app))?;
+        terminal.draw(|f| view.draw(f, &app))?;
 
         if let event::Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Release {
@@ -29,7 +34,7 @@ pub fn run(basedir: &std::path::Path) -> anyhow::Result<()> {
                 break;
             }
 
-            app.handle_key_events(key);
+            controller::handle_key_events(&mut app, key);
         }
     }
 
