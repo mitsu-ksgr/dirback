@@ -10,7 +10,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Widget},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
 };
 use tracing::{debug, info};
 
@@ -208,10 +208,14 @@ fn render_target_info_panel(frame: &mut Frame, ui: &mut View, app: &app::App, ch
     // Right part: Backup lists.
     let backup_list = make_backup_list_panel(ui, &app, &target, right);
     frame.render_widget(backup_list, right_top);
+
+    let backup_info = make_backup_info_panel(&app, &target);
+    frame.render_widget(backup_info, right_bottom);
 }
 
 fn make_target_info_panel(target: &Target) -> Paragraph {
     let block = Block::default()
+        .title(format!(" Target: {} ", target.name))
         .borders(Borders::ALL)
         .style(Style::default());
 
@@ -293,6 +297,8 @@ fn make_backup_list_panel<'a>(
                 Span::from(format!("{:0>3}", entry.id)),
                 Span::raw(" - "),
                 Span::from(entry.timestamp.to_rfc3339()),
+                Span::raw(" : "),
+                Span::from(entry.note),
             ])));
         }
     }
@@ -304,6 +310,52 @@ fn make_backup_list_panel<'a>(
         .style(Style::default());
 
     List::new(list_items).block(block)
+}
+
+fn make_backup_info_panel<'a>(app: &'a app::App, target: &Target) -> Paragraph<'a> {
+    let entry = target.backups.get(app.cursor_backup).clone();
+    if entry.is_none() {
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default());
+        return Paragraph::new("").block(block);
+    }
+
+    let entry = entry.unwrap();
+
+    let block = Block::default()
+        .title(format!(" Backup {0:>3} ", entry.id))
+        .borders(Borders::ALL)
+        .style(Style::default());
+
+    let key_style = Style::default()
+        .fg(Color::Yellow)
+        .add_modifier(Modifier::BOLD);
+
+    let lines = vec![
+        Line::from(vec![
+            Span::styled("ID", key_style.clone()),
+            Span::raw("          : "),
+            Span::from(format!("{:0>3}", entry.id)),
+        ]),
+        Line::from(vec![
+            Span::styled("Timestamp", key_style.clone()),
+            Span::raw("   : "),
+            Span::from(entry.timestamp.to_rfc3339()),
+        ]),
+        Line::from(vec![
+            Span::styled("Backup File", key_style.clone()),
+            Span::raw(" : "),
+        ]),
+        Line::from(Span::from(entry.path.display().to_string())),
+        Line::from(vec![
+            Span::styled("Note ", key_style.clone()),
+            Span::raw("       : "),
+        ]),
+        Line::from(vec![Span::from(entry.note.clone())]),
+    ];
+
+    Paragraph::new(lines).block(block).wrap(Wrap { trim: true })
 }
 
 //-----------------------------------------------------------------------------
