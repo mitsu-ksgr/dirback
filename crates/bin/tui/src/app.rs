@@ -7,8 +7,6 @@ use dirback::adapter::ListTargetsAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 use dirback::usecase::dto::Target;
 
-use crossterm::event::{Event, KeyEvent};
-
 #[derive(Debug, PartialEq)]
 pub enum Panel {
     TargetList,
@@ -129,7 +127,13 @@ impl App {
         self.cursor_target = change_cursor(self.cursor_target, changevalue, self.targets.len());
     }
 
-    pub fn change_cursor_backup(&mut self, change: isize) {}
+    pub fn change_cursor_backup(&mut self, changevalue: isize) {
+        let target = self.current_target.clone();
+        if let Some(target) = target {
+            self.cursor_backup =
+                change_cursor(self.cursor_backup, changevalue, target.backups.len());
+        }
+    }
 
     //-------------------------------------------------------------------------
     // Status

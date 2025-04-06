@@ -3,7 +3,7 @@
 //!
 
 use crate::app;
-use tracing::{debug, info};
+use dirback::usecase::dto::Target;
 
 use ratatui::{
     Frame,
@@ -12,6 +12,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, Borders, List, ListItem, Paragraph, Widget},
 };
+use tracing::{debug, info};
 
 #[derive(Default)]
 pub struct View {
@@ -39,8 +40,15 @@ impl View {
         frame.render_widget(header, chunks[0]);
 
         // Main: target-list panel.
-        let target_list = make_target_list_panel(self, &app, chunks[1]);
-        frame.render_widget(target_list, chunks[1]);
+        match app.current_panel {
+            app::Panel::TargetList => {
+                let target_list = make_target_list_panel(self, &app, chunks[1]);
+                frame.render_widget(target_list, chunks[1]);
+            }
+            app::Panel::TargetInfo => {
+                render_target_info_panel(frame, self, &app, chunks[1]);
+            }
+        }
 
         // State.
         if has_notify {
@@ -159,6 +167,143 @@ fn make_status_bar_panel(app: &app::App) -> Paragraph {
         .remove_modifier(Modifier::BOLD);
 
     Paragraph::new(Text::styled(msg, msg_style)).block(block)
+}
+
+//-----------------------------------------------------------------------------
+//  Main panel - Target Info panel.
+//-----------------------------------------------------------------------------
+fn render_target_info_panel(frame: &mut Frame, ui: &mut View, app: &app::App, chunk: Rect) {
+    // Target check.
+    let target = app.current_target.clone();
+    if target.is_none() {
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default());
+
+        let warn = Paragraph::new("Target information is none.").block(block);
+        frame.render_widget(warn, chunk);
+        return;
+    }
+    let target = target.unwrap();
+
+    // Layout.
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(chunk);
+    let left = chunks[0];
+    let right = chunks[1];
+
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(right);
+    let right_top = chunks[0];
+    let right_bottom = chunks[1];
+
+    // Left part: Target information.
+    let target_info_panel = make_target_info_panel(&target);
+    frame.render_widget(target_info_panel, left);
+
+    // Right part: Backup lists.
+    let backup_list = make_backup_list_panel(ui, &app, &target, right);
+    frame.render_widget(backup_list, right_top);
+}
+
+fn make_target_info_panel(target: &Target) -> Paragraph {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .style(Style::default());
+
+    let key_style = Style::default()
+        .fg(Color::Yellow)
+        .add_modifier(Modifier::BOLD);
+
+    let lines = vec![
+        Line::from(vec![
+            Span::styled("Name", key_style.clone()),
+            Span::raw("    : "),
+            Span::from(target.name.clone()),
+        ]),
+        Line::from(vec![
+            Span::styled("ID", key_style.clone()),
+            Span::raw("      : "),
+            Span::from(target.id.clone()),
+        ]),
+        Line::from(vec![
+            Span::styled("Target", key_style.clone()),
+            Span::raw("  : "),
+        ]),
+        Line::from(vec![
+            Span::raw("    "),
+            Span::from(target.path.display().to_string()),
+        ]),
+        Line::from(vec![
+            Span::styled("Backups", key_style.clone()),
+            Span::raw(" : "),
+            Span::from(format!("{}", target.backups.len())),
+        ]),
+    ];
+
+    Paragraph::new(lines).block(block)
+}
+
+fn make_backup_list_panel<'a>(
+    ui: &'a mut View,
+    app: &'a app::App,
+    target: &Target,
+    chunk: Rect,
+) -> List<'a> {
+    let mut title = String::from(" Backups ");
+    let mut list_items = Vec::<ListItem>::new();
+
+    if target.backups.is_empty() {
+        list_items.push(ListItem::new(Line::from("No backups.")));
+    } else {
+        let height = usize::from(chunk.height) - 2;
+        let list_len = target.backups.len();
+
+        // Update offset
+        if app.cursor_backup < ui.backup_list_offset {
+            ui.backup_list_offset = app.cursor_backup;
+        } else if app.cursor_backup >= ui.backup_list_offset + height {
+            ui.backup_list_offset = app.cursor_backup - (height - 1);
+        }
+
+        // Visibles
+        let start = ui.backup_list_offset;
+        let end = std::cmp::min(ui.backup_list_offset + height, list_len);
+        let visible_backups = &target.backups[start..end];
+
+        // Update title
+        title.push_str(&format!("[{:>2} ~ {:>2} / {list_len}]", start + 1, end));
+
+        // ListItems
+        for (i, entry) in visible_backups.iter().enumerate() {
+            let entry = entry.clone();
+            let idx = i + start;
+            let cursor = if idx == app.cursor_backup {
+                String::from(" > ")
+            } else {
+                String::from("   ")
+            };
+
+            list_items.push(ListItem::new(Line::from(vec![
+                Span::from(cursor),
+                Span::from(format!("{:0>3}", entry.id)),
+                Span::raw(" - "),
+                Span::from(entry.timestamp.to_rfc3339()),
+            ])));
+        }
+    }
+
+    // Render view.
+    let block = Block::default()
+        .title(title)
+        .borders(Borders::ALL)
+        .style(Style::default());
+
+    List::new(list_items).block(block)
 }
 
 //-----------------------------------------------------------------------------
