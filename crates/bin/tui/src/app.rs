@@ -6,11 +6,21 @@ use dirback::adapter::GetTargetAdapter;
 use dirback::adapter::ListTargetsAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 use dirback::usecase::dto::Target;
+use dirback::usecase::register_target::RegisterTargetUsecase;
 
 #[derive(Debug, PartialEq)]
 pub enum Panel {
     TargetList,
     TargetInfo,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Popup {
+    RegisterNewTarget,
+    DeleteTarget,
+    TakeBackup,
+    DeleteBackup,
+    Restore,
 }
 
 #[derive(Debug, PartialEq)]
@@ -35,6 +45,12 @@ pub struct App {
 
     pub status: Option<Status>,
     pub message: Option<String>,
+
+    // Popup
+    pub current_popup: Option<Popup>,
+    pub popup_input_buf: Vec<String>,
+    pub popup_edit_index: usize,
+    pub popup_errors: Vec<String>,
 }
 
 impl App {
@@ -52,6 +68,12 @@ impl App {
             cursor_backup: 0,
             status: None,
             message: None,
+
+            // Popup
+            current_popup: None,
+            popup_input_buf: Vec::new(),
+            popup_edit_index: 0,
+            popup_errors: Vec::new(),
         }
     }
 
@@ -85,6 +107,18 @@ impl App {
                 None
             }
         }
+    }
+
+    pub fn register_target(&mut self, name: &str, path: &std::path::Path) -> anyhow::Result<()> {
+        if !path.exists() {
+            anyhow::bail!("Target path is invalid: '{}'", path.to_string_lossy());
+        }
+
+        let path = std::fs::canonicalize(&path)?;
+        let mut usecase = RegisterTargetUsecase::new(&mut self.repo);
+        let target = usecase.execute(&name, &path)?;
+
+        Ok(())
     }
 
     //-------------------------------------------------------------------------
@@ -147,6 +181,27 @@ impl App {
         self.status = None;
         self.message = None;
     }
+
+    //-------------------------------------------------------------------------
+    // Popup
+    //-------------------------------------------------------------------------
+    pub fn hide_popup(&mut self) {
+        self.current_popup = None;
+        self.popup_input_buf.clear();
+        self.popup_edit_index = 0;
+        self.popup_errors.clear();
+    }
+
+    pub fn show_popup(&mut self, popup: Popup) -> bool {
+        if self.current_popup.is_some() {
+            return false;
+        }
+
+        self.current_popup = Some(popup);
+        self.popup_input_buf.push(String::new());
+        self.popup_input_buf.push(String::new());
+        return true;
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -201,7 +256,6 @@ mod tests {
 
         let _ = add_test_targets(&mut app);
         app.fetch_targets();
-
         assert_eq!(app.targets.len(), 3);
     }
 
@@ -295,6 +349,45 @@ mod tests {
             app.clear_status();
             assert!(app.status.is_none());
             assert!(app.message.is_none());
+        }
+    }
+
+    mod popup {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let mut app = make_dummy_app();
+            assert_eq!(app.current_popup, None);
+            assert_eq!(app.popup_input_buf.len(), 0);
+            assert_eq!(app.popup_edit_index, 0);
+            assert_eq!(app.popup_errors.len(), 0);
+
+            let result = app.show_popup(Popup::RegisterNewTarget);
+            assert!(result);
+            assert_eq!(app.current_popup, Some(Popup::RegisterNewTarget));
+
+            app.hide_popup();
+            assert_eq!(app.current_popup, None);
+            assert_eq!(app.popup_input_buf.len(), 0);
+            assert_eq!(app.popup_edit_index, 0);
+            assert_eq!(app.popup_errors.len(), 0);
+        }
+
+        #[test]
+        fn show_popup_returns_false_when_popup_already_shown() {
+            let mut app = make_dummy_app();
+
+            let result = app.show_popup(Popup::RegisterNewTarget);
+            assert!(result);
+            assert_eq!(app.current_popup, Some(Popup::RegisterNewTarget));
+
+            let result = app.show_popup(Popup::DeleteTarget);
+            assert!(!result);
+            assert_eq!(app.current_popup, Some(Popup::RegisterNewTarget));
+
+            let result = app.show_popup(Popup::RegisterNewTarget);
+            assert!(!result);
         }
     }
 

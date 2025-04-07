@@ -7,10 +7,10 @@ use dirback::usecase::dto::Target;
 
 use ratatui::{
     Frame,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Flex, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
 };
 use tracing::{debug, info};
 
@@ -59,6 +59,18 @@ impl View {
         // Footer.
         let footer = make_footer_panel(&app);
         frame.render_widget(footer, chunks[3]);
+
+        // Popup
+        match app.current_popup {
+            Some(app::Popup::RegisterNewTarget) => {
+                render_register_target_popup(frame, &app);
+            }
+            Some(app::Popup::DeleteTarget) => {}
+            Some(app::Popup::TakeBackup) => {}
+            Some(app::Popup::DeleteBackup) => {}
+            Some(app::Popup::Restore) => {}
+            None => {}
+        }
     }
 }
 
@@ -433,4 +445,124 @@ fn make_footer_panel(app: &app::App) -> Paragraph {
     ]));
 
     Paragraph::new(lines).block(block)
+}
+
+//-----------------------------------------------------------------------------
+// Popup
+//-----------------------------------------------------------------------------
+fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
+    // Render popup base
+    let popup = popup_area(75, 50, frame.area());
+    let popup_block = Block::bordered()
+        .title(" Register new target ")
+        .style(Style::default().bg(Color::DarkGray));
+    frame.render_widget(Clear, popup);
+    frame.render_widget(popup_block, popup);
+
+    // Layout
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints([
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+            Constraint::Length(1), // spacer
+            Constraint::Min(3),
+        ])
+        .split(popup);
+    let chunk_name = chunks[1];
+    let chunk_path = chunks[3];
+    let chunk_footer = chunks[5];
+
+    // TODO: from app
+    let edit_index = app.popup_edit_index;
+    let edit_name = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+    let edit_path = app.popup_input_buf.get(1).unwrap_or(&String::new()).clone();
+
+    // Inputs
+    let mut name_block = Block::bordered().title(" Name ");
+    let mut path_block = Block::bordered().title(" Target path ");
+
+    let active_style = Style::default().bg(Color::LightYellow).fg(Color::Black);
+    match edit_index {
+        0 => name_block = name_block.style(active_style),
+        1 => path_block = path_block.style(active_style),
+        _ => {}
+    }
+
+    let name_p = Paragraph::new(edit_name.clone()).block(name_block);
+    frame.render_widget(name_p, chunk_name);
+
+    let path_p = Paragraph::new(edit_path.clone()).block(path_block);
+    frame.render_widget(path_p, chunk_path);
+
+    // Footer
+    let mut lines = vec![];
+    if !app.popup_errors.is_empty() {
+        let err_style = Style::default().fg(Color::Red);
+        for err in app.popup_errors.iter() {
+            lines.push(Line::styled(err.clone(), err_style.clone()));
+        }
+        lines.push(Line::raw(""));
+    }
+    lines.append(&mut manual_lines(&vec![
+        ("Switch input field", vec!["TAB"]),
+        ("Cancel", vec!["Esc"]),
+        ("Submit", vec!["Enter"]),
+    ]));
+    let footer = Paragraph::new(lines);
+    frame.render_widget(footer, chunk_footer);
+}
+
+fn manual_lines<'a>(manuals: &Vec<(&str, Vec<&str>)>) -> Vec<Line<'a>> {
+    // Style
+    let key_style = Style::default().fg(Color::Yellow);
+
+    // calc width
+    let mut max_len = 1;
+    for manual in manuals.iter() {
+        max_len = std::cmp::max(max_len, manual.0.len());
+    }
+    let width = max_len + 1;
+
+    // Build view
+    let mut lines = vec![];
+    for manual in manuals.iter() {
+        let title = manual.0.to_string();
+
+        let mut spans = vec![Span::from(format!("{:<width$}: ", title))];
+
+        for (i, key) in manual.1.iter().enumerate() {
+            let key = key.to_string();
+
+            if i > 0 {
+                spans.push(Span::raw(", "));
+            }
+
+            if key.len() == 1 {
+                spans.push(Span::raw("'"));
+                spans.push(Span::styled(key, key_style.clone()));
+                spans.push(Span::raw("'"));
+            } else {
+                spans.push(Span::styled(key, key_style.clone()));
+            }
+        }
+
+        lines.push(Line::from(spans));
+    }
+
+    lines
+}
+
+/// Helper function to create a centered rect for the popup.
+///
+/// Ref: https://ratatui.rs/examples/apps/popup/
+fn popup_area(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let v = Layout::vertical([Constraint::Percentage(percent_y)]).flex(Flex::Center);
+    let h = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
+    let [area] = v.areas(r);
+    let [area] = h.areas(area);
+    area
 }
