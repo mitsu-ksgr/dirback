@@ -18,7 +18,6 @@ pub fn run(basedir: &std::path::Path) -> anyhow::Result<()> {
     // Application loop.
     let mut app = app::App::new(basedir);
     app.fetch_targets();
-    //app.set_status(app::Status::Info, "Hello dirback!"); // TODO: test.
 
     let mut view = view::View::default();
 
