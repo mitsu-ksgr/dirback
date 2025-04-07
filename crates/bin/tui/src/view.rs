@@ -62,10 +62,8 @@ impl View {
 
         // Popup
         match app.current_popup {
-            Some(app::Popup::RegisterNewTarget) => {
-                render_register_target_popup(frame, &app);
-            }
-            Some(app::Popup::DeleteTarget) => {}
+            Some(app::Popup::RegisterNewTarget) => render_register_target_popup(frame, &app),
+            Some(app::Popup::DeleteTarget) => render_delete_target_popup(frame, &app),
             Some(app::Popup::TakeBackup) => {}
             Some(app::Popup::DeleteBackup) => {}
             Some(app::Popup::Restore) => {}
@@ -500,6 +498,73 @@ fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
     }
     lines.append(&mut manual_lines(&vec![
         ("Switch input field", vec!["TAB"]),
+        ("Cancel", vec!["Esc"]),
+        ("Submit", vec!["Enter"]),
+    ]));
+    let footer = Paragraph::new(lines);
+    frame.render_widget(footer, chunk_footer);
+}
+
+fn render_delete_target_popup(frame: &mut Frame, app: &app::App) {
+    // Render popup base
+    let popup = popup_area(75, 50, frame.area());
+    let popup_block = Block::bordered()
+        .title(" Delete target ")
+        .style(Style::default().bg(Color::DarkGray));
+    frame.render_widget(Clear, popup);
+    frame.render_widget(popup_block, popup);
+
+    // Layout
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints([
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+            Constraint::Length(1), // spacer
+            Constraint::Min(3),
+        ])
+        .split(popup);
+    let chunk_header = chunks[1];
+    let chunk_confirm = chunks[3];
+    let chunk_footer = chunks[5];
+
+    // Header: confirmation dialog
+    let del_target_name = app.current_target.as_ref().unwrap().name.clone();
+    let header = Paragraph::new(vec![
+        Line::from(vec![
+            Span::styled("Warning", Style::default().fg(Color::Red)),
+            Span::raw(": This action cannot be undone!"),
+        ]),
+        Line::from("Confirm the target name to continue."),
+        Line::from(vec![
+            Span::raw("Type: '"),
+            Span::styled(del_target_name, Style::default().fg(Color::Yellow)),
+            Span::raw("'"),
+        ]),
+    ]);
+    frame.render_widget(header, chunk_header);
+
+    // Confirmation form
+    let edit_confirm = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+    let confirm_block = Block::bordered()
+        .title(" Confrimation ")
+        .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
+    let confirm_p = Paragraph::new(edit_confirm.clone()).block(confirm_block);
+    frame.render_widget(confirm_p, chunk_confirm);
+
+    // Footer
+    let mut lines = vec![];
+    if !app.popup_errors.is_empty() {
+        let err_style = Style::default().fg(Color::Red);
+        for err in app.popup_errors.iter() {
+            lines.push(Line::styled(err.clone(), err_style.clone()));
+        }
+        lines.push(Line::raw(""));
+    }
+    lines.append(&mut manual_lines(&vec![
         ("Cancel", vec!["Esc"]),
         ("Submit", vec!["Enter"]),
     ]));

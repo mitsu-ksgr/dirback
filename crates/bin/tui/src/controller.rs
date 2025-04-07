@@ -13,6 +13,7 @@ pub fn handle_key_events(app: &mut app::App, key: KeyEvent) {
     if app.current_popup.is_some() {
         match app.current_popup {
             Some(app::Popup::RegisterNewTarget) => in_register_target_popup(app, key),
+            Some(app::Popup::DeleteTarget) => in_delete_target_popup(app, key),
             _ => {}
         }
     } else {
@@ -41,7 +42,7 @@ fn in_target_list_panel(app: &mut app::App, key: KeyEvent) {
             app.show_popup(app::Popup::RegisterNewTarget);
         }
         KeyCode::Char('d') => {
-            // TODO: Delete a target.
+            app.show_popup(app::Popup::DeleteTarget);
         }
         KeyCode::Esc | KeyCode::Char('q') => {
             app.quit();
@@ -96,7 +97,6 @@ fn in_register_target_popup(app: &mut app::App, key: KeyEvent) {
             }
         }
         KeyCode::Enter => {
-            // TODO: Submit.
             app.popup_errors.clear();
             let name = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
             let path = app.popup_input_buf.get(1).unwrap_or(&String::new()).clone();
@@ -122,19 +122,48 @@ fn in_register_target_popup(app: &mut app::App, key: KeyEvent) {
                 return;
             }
 
-            // TODO: Submit!
+            // Submit
             match app.register_target(&name, &path) {
-                Ok(()) => {
-                    app.hide_popup();
-                    app.fetch_targets();
-                    app.set_status(
-                        app::Status::Info,
-                        &format!("New target '{}' registered!", name),
-                    );
-                }
-                Err(e) => {
-                    app.popup_errors.push(e.to_string());
-                }
+                Ok(()) => app.hide_popup(),
+                Err(e) => app.popup_errors.push(e.to_string()),
+            }
+        }
+        _ => {}
+    }
+}
+
+fn in_delete_target_popup(app: &mut app::App, key: KeyEvent) {
+    match key.code {
+        KeyCode::Esc => {
+            app.hide_popup();
+        }
+        KeyCode::Char(ch) => {
+            if let Some(buf) = app.popup_input_buf.get_mut(0) {
+                buf.push(ch);
+            }
+        }
+        KeyCode::Backspace => {
+            if let Some(buf) = app.popup_input_buf.get_mut(0) {
+                buf.pop();
+            }
+        }
+        KeyCode::Enter => {
+            app.popup_errors.clear();
+            let confirm = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+            let target_name = app.current_target.as_ref().unwrap().name.clone();
+
+            // Check input.
+            if confirm != target_name {
+                app.popup_errors.push(String::from("Confirmation failed!"));
+            }
+            if !app.popup_errors.is_empty() {
+                return;
+            }
+
+            // Submit
+            match app.delete_current_target() {
+                Ok(()) => app.hide_popup(),
+                Err(e) => app.popup_errors.push(e.to_string()),
             }
         }
         _ => {}

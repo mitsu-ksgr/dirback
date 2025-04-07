@@ -5,6 +5,7 @@
 use dirback::adapter::GetTargetAdapter;
 use dirback::adapter::ListTargetsAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
+use dirback::usecase::delete_target::DeleteTargetUsecase;
 use dirback::usecase::dto::Target;
 use dirback::usecase::register_target::RegisterTargetUsecase;
 
@@ -118,7 +119,28 @@ impl App {
 
         let path = std::fs::canonicalize(&path)?;
         let mut usecase = RegisterTargetUsecase::new(&mut self.repo);
-        let target = usecase.execute(&name, &path)?;
+        let _ = usecase.execute(&name, &path)?;
+
+        self.fetch_targets();
+        self.set_status(Status::Info, &format!("New target '{}' registered!", name));
+
+        Ok(())
+    }
+
+    pub fn delete_current_target(&mut self) -> anyhow::Result<()> {
+        if self.current_target.is_none() {
+            anyhow::bail!("Target is none.");
+        }
+
+        let target = self.current_target.as_ref().unwrap().clone();
+        let mut usecase = DeleteTargetUsecase::new(&mut self.repo);
+        let dt = usecase.execute(&target.id)?;
+
+        self.fetch_targets();
+        self.set_status(
+            Status::Info,
+            &format!("The target '{}' has been deleted.", dt.name),
+        );
 
         Ok(())
     }
@@ -203,6 +225,17 @@ impl App {
             return false;
         }
 
+        match popup {
+            Popup::DeleteTarget => {
+                if let Some(target) = self.targets.get(self.cursor_target) {
+                    self.current_target = Some(target.clone());
+                } else {
+                    return false;
+                }
+            }
+            _ => {}
+        }
+
         self.current_popup = Some(popup);
         self.popup_input_buf.push(String::new());
         self.popup_input_buf.push(String::new());
@@ -265,7 +298,7 @@ mod tests {
         assert_eq!(app.targets.len(), 3);
     }
 
-    mod regsiter_target {
+    mod register_target {
         use super::*;
 
         #[test]
@@ -273,7 +306,7 @@ mod tests {
             let temp = mktemp::TempDir::new().unwrap();
             let mut app = make_app(&temp);
 
-            let ids = add_test_targets(&mut app);
+            let _ = add_test_targets(&mut app);
             app.fetch_targets();
             assert_eq!(app.targets.len(), 3);
 
@@ -282,8 +315,6 @@ mod tests {
 
             let result = app.register_target(name, path);
             assert!(result.is_ok());
-
-            app.fetch_targets();
             assert_eq!(app.targets.len(), 4);
         }
 
@@ -300,6 +331,40 @@ mod tests {
             let path = std::path::Path::new("./invalid-path");
 
             let result = app.register_target(name, path);
+            assert!(result.is_err());
+        }
+    }
+
+    mod delete_current_target {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let _ = add_test_targets(&mut app);
+            app.fetch_targets();
+            assert_eq!(app.targets.len(), 3);
+
+            let del_target = app.targets[1].clone();
+            app.current_target = Some(del_target.clone());
+
+            let result = app.delete_current_target();
+            assert!(result.is_ok());
+            assert_eq!(app.targets.len(), 2);
+        }
+
+        #[test]
+        fn it_fails_when_current_target_not_set() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let _ = add_test_targets(&mut app);
+            app.fetch_targets();
+            assert_eq!(app.targets.len(), 3);
+
+            let result = app.delete_current_target();
             assert!(result.is_err());
         }
     }
