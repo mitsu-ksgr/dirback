@@ -64,7 +64,7 @@ impl View {
         match app.current_popup {
             Some(app::Popup::RegisterNewTarget) => render_register_target_popup(frame, &app),
             Some(app::Popup::DeleteTarget) => render_delete_target_popup(frame, &app),
-            Some(app::Popup::TakeBackup) => {}
+            Some(app::Popup::TakeBackup) => render_take_backup_popup(frame, &app),
             Some(app::Popup::DeleteBackup) => {}
             Some(app::Popup::Restore) => {}
             None => {}
@@ -554,6 +554,56 @@ fn render_delete_target_popup(frame: &mut Frame, app: &app::App) {
         .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
     let confirm_p = Paragraph::new(edit_confirm.clone()).block(confirm_block);
     frame.render_widget(confirm_p, chunk_confirm);
+
+    // Footer
+    let mut lines = vec![];
+    if !app.popup_errors.is_empty() {
+        let err_style = Style::default().fg(Color::Red);
+        for err in app.popup_errors.iter() {
+            lines.push(Line::styled(err.clone(), err_style.clone()));
+        }
+        lines.push(Line::raw(""));
+    }
+    lines.append(&mut manual_lines(&vec![
+        ("Cancel", vec!["Esc"]),
+        ("Submit", vec!["Enter"]),
+    ]));
+    let footer = Paragraph::new(lines);
+    frame.render_widget(footer, chunk_footer);
+}
+
+fn render_take_backup_popup(frame: &mut Frame, app: &app::App) {
+    // Render popup base
+    let popup = popup_area(75, 50, frame.area());
+    let popup_block = Block::bordered()
+        .title(" Take a new backup ")
+        .style(Style::default().bg(Color::DarkGray));
+    frame.render_widget(Clear, popup);
+    frame.render_widget(popup_block, popup);
+
+    // Layout
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints([
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+            Constraint::Length(1), // spacer
+            Constraint::Min(3),
+        ])
+        .split(popup);
+    let chunk_note = chunks[1];
+    let chunk_footer = chunks[5];
+
+    // Confirmation form
+    let edit_note = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+    let block = Block::bordered()
+        .title(" Note ")
+        .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
+    let p = Paragraph::new(edit_note.clone()).block(block);
+    frame.render_widget(p, chunk_note);
 
     // Footer
     let mut lines = vec![];

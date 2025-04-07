@@ -5,6 +5,8 @@
 use dirback::adapter::GetTargetAdapter;
 use dirback::adapter::ListTargetsAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
+use dirback::infra::service::targz_backup_service::TargzBackupService;
+use dirback::usecase::backup::BackupUsecase;
 use dirback::usecase::delete_target::DeleteTargetUsecase;
 use dirback::usecase::dto::Target;
 use dirback::usecase::register_target::RegisterTargetUsecase;
@@ -140,6 +142,33 @@ impl App {
         self.set_status(
             Status::Info,
             &format!("The target '{}' has been deleted.", dt.name),
+        );
+
+        Ok(())
+    }
+
+    pub fn take_backup_of_current_target(&mut self, note: &str) -> anyhow::Result<()> {
+        if self.current_target.is_none() {
+            anyhow::bail!("Target is none.");
+        }
+
+        let target = self.current_target.as_ref().unwrap().clone();
+        let note = note.to_string();
+
+        let service = TargzBackupService::new();
+        let mut usecase = BackupUsecase::new(&mut self.repo, &service);
+
+        usecase.execute(&target.id, &note)?;
+
+        // Update current-target
+        self.fetch_targets();
+        if let Some(target) = self.targets.iter().find(|t| t.id == target.id) {
+            self.current_target = Some(target.clone());
+        }
+
+        self.set_status(
+            Status::Info,
+            &format!("Target('{}') backup is complete!", target.name),
         );
 
         Ok(())
