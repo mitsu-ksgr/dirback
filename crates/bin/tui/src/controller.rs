@@ -38,7 +38,6 @@ fn in_target_list_panel(app: &mut app::App, key: KeyEvent) {
             app.switch_panel(app::Panel::TargetInfo);
         }
         KeyCode::Char('r') => {
-            // TODO: Register new target.
             app.show_popup(app::Popup::RegisterNewTarget);
         }
         KeyCode::Char('d') => {

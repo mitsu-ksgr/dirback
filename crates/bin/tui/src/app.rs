@@ -265,6 +265,45 @@ mod tests {
         assert_eq!(app.targets.len(), 3);
     }
 
+    mod regsiter_target {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let ids = add_test_targets(&mut app);
+            app.fetch_targets();
+            assert_eq!(app.targets.len(), 3);
+
+            let name = "RegisterTest";
+            let path = std::path::Path::new(".");
+
+            let result = app.register_target(name, path);
+            assert!(result.is_ok());
+
+            app.fetch_targets();
+            assert_eq!(app.targets.len(), 4);
+        }
+
+        #[test]
+        fn it_fails_when_invalid_path() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let ids = add_test_targets(&mut app);
+            app.fetch_targets();
+            assert_eq!(app.targets.len(), 3);
+
+            let name = "RegisterTest";
+            let path = std::path::Path::new("./invalid-path");
+
+            let result = app.register_target(name, path);
+            assert!(result.is_err());
+        }
+    }
+
     mod select_target {
         use super::*;
 
