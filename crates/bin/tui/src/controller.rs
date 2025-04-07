@@ -44,6 +44,9 @@ fn in_target_list_panel(app: &mut app::App, key: KeyEvent) {
         KeyCode::Char('d') => {
             // TODO: Delete a target.
         }
+        KeyCode::Esc | KeyCode::Char('q') => {
+            app.quit();
+        }
         _ => {}
     }
 }
@@ -65,7 +68,7 @@ fn in_target_info_panel(app: &mut app::App, key: KeyEvent) {
         KeyCode::Enter => {
             // TODO: Restore popup.
         }
-        KeyCode::Backspace | KeyCode::Esc => {
+        KeyCode::Esc | KeyCode::Backspace | KeyCode::Char('q') => {
             app.switch_panel(app::Panel::TargetList);
         }
         _ => {}

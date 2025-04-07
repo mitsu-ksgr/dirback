@@ -42,6 +42,7 @@ pub struct App {
     pub current_panel: Panel,
     pub cursor_target: usize,
     pub cursor_backup: usize,
+    pub quit_request: bool,
 
     pub status: Option<Status>,
     pub message: Option<String>,
@@ -66,6 +67,7 @@ impl App {
             current_panel: Panel::TargetList,
             cursor_target: 0,
             cursor_backup: 0,
+            quit_request: false,
             status: None,
             message: None,
 
@@ -124,6 +126,10 @@ impl App {
     //-------------------------------------------------------------------------
     // Panel
     //-------------------------------------------------------------------------
+    pub fn quit(&mut self) {
+        self.quit_request = true;
+    }
+
     pub fn switch_panel(&mut self, to: Panel) -> bool {
         if self.current_panel == to {
             return false; // do nothing.
@@ -280,6 +286,19 @@ mod tests {
 
             let target = &app.current_target.unwrap();
             assert_eq!(target.id, *target_id);
+        }
+    }
+
+    mod quit {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let mut app = make_dummy_app();
+            assert_eq!(app.quit_request, false);
+
+            app.quit();
+            assert_eq!(app.quit_request, true);
         }
     }
 

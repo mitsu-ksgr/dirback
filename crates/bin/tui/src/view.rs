@@ -31,7 +31,7 @@ impl View {
                 Constraint::Length(3),
                 Constraint::Min(10),
                 Constraint::Length(status_bar_len),
-                Constraint::Length(8),
+                Constraint::Length(9),
             ])
             .split(frame.area());
 
@@ -381,28 +381,6 @@ fn make_header_panel(title: &str) -> Paragraph {
     Paragraph::new(Text::styled(title, Style::default().fg(Color::Green))).block(block)
 }
 
-fn make_footer_key_line(name: &str, keys: Vec<&str>) -> Line<'static> {
-    let mut spans = vec![Span::raw(format!("{name:<25}")), Span::raw(" : ")];
-
-    for (i, key) in keys.iter().enumerate() {
-        let key = key.to_string();
-
-        if i > 0 {
-            spans.push(Span::raw(", "));
-        }
-
-        if key.len() == 1 {
-            spans.push(Span::raw("'"));
-            spans.push(Span::styled(key, Style::default().fg(Color::Yellow)));
-            spans.push(Span::raw("'"));
-        } else {
-            spans.push(Span::styled(key, Style::default().fg(Color::Yellow)));
-        }
-    }
-
-    Line::from(spans)
-}
-
 fn make_footer_panel(app: &app::App) -> Paragraph {
     let block = Block::default()
         .borders(Borders::ALL)
@@ -412,37 +390,50 @@ fn make_footer_panel(app: &app::App) -> Paragraph {
         .fg(Color::Yellow)
         .add_modifier(Modifier::BOLD);
 
-    let mut lines = {
-        match app.current_panel {
-            app::Panel::TargetList => vec![
-                Line::from(vec![
-                    Span::styled("Target selection", title_style.clone()),
-                    Span::raw(":"),
-                ]),
-                make_footer_key_line("  Register new target", vec!["n"]),
-                make_footer_key_line("  Select a target", vec!["ArrowKeys", "k", "j", "Enter"]),
-                make_footer_key_line("  Delete a target", vec!["d"]),
-            ],
-            app::Panel::TargetInfo => vec![
-                Line::from(vec![
-                    Span::styled("Target actions", title_style.clone()),
-                    Span::raw(":"),
-                ]),
-                make_footer_key_line("  Take a new backup", vec!["n"]),
-                make_footer_key_line("  Select a backup", vec!["ArrowKeys", "k", "j", "Enter"]),
-                make_footer_key_line("  Back", vec!["b", "ESC", "BACKSPACE"]),
-            ],
+    let mut lines = vec![];
+    match app.current_panel {
+        app::Panel::TargetList => {
+            lines.push(Line::from(vec![
+                Span::styled("Target selection", title_style.clone()),
+                Span::raw(":"),
+            ]));
+            lines.append(&mut manual_lines(&vec![
+                ("  Register new target", vec!["r"]),
+                ("  Select a target", vec!["ArrowKeys", "k", "j", "Enter"]),
+                ("  Delete a target", vec!["d"]),
+            ]));
         }
-    };
-
+        app::Panel::TargetInfo => {
+            lines.push(Line::from(vec![
+                Span::styled("Target actions", title_style.clone()),
+                Span::raw(":"),
+            ]));
+            lines.append(&mut manual_lines(&vec![
+                ("  Take a new backup", vec!["n", "b"]),
+                ("  Select a backup", vec!["ArrowKeys", "k", "j", "Enter"]),
+                ("  Delete a backup", vec!["d"]),
+                ("  Back to the target list", vec!["Esc", "BackSpace", "q"]),
+            ]));
+        }
+    }
     lines.push(Line::from(""));
-    lines.push(Line::from(vec![
+
+    // Quit
+    let quit_style = Style::default().fg(Color::Red);
+    let mut spans = vec![
         Span::raw("Quit with "),
-        Span::styled("<Ctrl+c>", Style::default().fg(Color::Red)),
-        Span::raw(" or '"),
-        Span::styled("q", Style::default().fg(Color::Red)),
-        Span::raw("'"),
-    ]));
+        Span::styled("<Ctrl+c>", quit_style.clone()),
+    ];
+    if app.current_panel == app::Panel::TargetList {
+        spans.append(&mut vec![
+            Span::raw(" or "),
+            Span::styled("Esc", Style::default().fg(Color::Red)),
+            Span::raw(" or '"),
+            Span::styled("q", Style::default().fg(Color::Red)),
+            Span::raw("'"),
+        ]);
+    }
+    lines.push(Line::from(spans));
 
     Paragraph::new(lines).block(block)
 }
@@ -476,7 +467,7 @@ fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
     let chunk_path = chunks[3];
     let chunk_footer = chunks[5];
 
-    // TODO: from app
+    // Editor params
     let edit_index = app.popup_edit_index;
     let edit_name = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
     let edit_path = app.popup_input_buf.get(1).unwrap_or(&String::new()).clone();
@@ -516,6 +507,9 @@ fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
     frame.render_widget(footer, chunk_footer);
 }
 
+//-----------------------------------------------------------------------------
+// Helpers
+//-----------------------------------------------------------------------------
 fn manual_lines<'a>(manuals: &Vec<(&str, Vec<&str>)>) -> Vec<Line<'a>> {
     // Style
     let key_style = Style::default().fg(Color::Yellow);

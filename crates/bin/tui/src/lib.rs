@@ -35,6 +35,10 @@ pub fn run(basedir: &std::path::Path) -> anyhow::Result<()> {
             }
 
             controller::handle_key_events(&mut app, key);
+
+            if app.quit_request {
+                break;
+            }
         }
     }
 
