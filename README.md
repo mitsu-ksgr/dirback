@@ -1,29 +1,21 @@
-Dirback
+dirback
 =======
 
-- A simple directory backup tool.
+dirback is a simple directory-based backup tool.
+
+Back up the target directory with targ.gz.
+
+It can back up the target directory as a `tar.gz`.
+It also allows for easy restoration from the backup.
 
 
-## Notes
-### Base path
-- `APP_DATA_PATH`
-  - Linux: "~/.local/share/dirback"
-  - Windows: "TODO"
+## Applications
+- [Command line tool](./crates/bin/cmd/README.md)
+- [TUI](./crates/bin/tui/README.md)
 
-### Data path
-- Target path
-  - `/path/to/target/dir`
-- Application data path
-  - `${APP_DATA_PATH}/targets.json`
-    - target id (uuid?)
-- BackupFile path
-  - `${APP_DATA_PATH}/targets/{TARGET_ID}/info.json`
-    - target_id ... (uuid)
-    - target_dir_path
-    - backups
-      - id ... backup id
-      - filename ... (`{BACKUP_ID}_{TIMESTAMP}.tar.gz`)
-      - note
-  - `${APP_DATA_PATH}/targets/{TARGET_ID}/backups/{BACKUP_ID}_{TIMESTAMP}.tar.gz`
+
+## Application data path
+- Linux: `~/.local/share/dirback`
+- Windows: `TODO`
 
 
