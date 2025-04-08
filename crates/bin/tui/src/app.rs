@@ -7,6 +7,7 @@ use dirback::adapter::ListTargetsAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 use dirback::infra::service::targz_backup_service::TargzBackupService;
 use dirback::usecase::backup::BackupUsecase;
+use dirback::usecase::delete_backup::DeleteBackupUsecase;
 use dirback::usecase::delete_target::DeleteTargetUsecase;
 use dirback::usecase::dto::Target;
 use dirback::usecase::register_target::RegisterTargetUsecase;
@@ -157,7 +158,6 @@ impl App {
 
         let service = TargzBackupService::new();
         let mut usecase = BackupUsecase::new(&mut self.repo, &service);
-
         usecase.execute(&target.id, &note)?;
 
         // Update current-target
@@ -169,6 +169,35 @@ impl App {
         self.set_status(
             Status::Info,
             &format!("Target('{}') backup is complete!", target.name),
+        );
+
+        Ok(())
+    }
+
+    pub fn delete_current_backup(&mut self) -> anyhow::Result<()> {
+        if self.current_target.is_none() {
+            anyhow::bail!("Target is none.");
+        }
+
+        let target = self.current_target.as_ref().unwrap().clone();
+        let entry = target.backups.get(self.cursor_backup);
+        if entry.is_none() {
+            anyhow::bail!("Backup is none.");
+        }
+        let entry = entry.unwrap();
+
+        let mut usecase = DeleteBackupUsecase::new(&mut self.repo);
+        let deleted_entry = usecase.execute(&target.id, entry.id)?;
+
+        // Update current target
+        self.fetch_targets();
+        if let Some(target) = self.targets.iter().find(|t| t.id == target.id) {
+            self.current_target = Some(target.clone());
+        }
+
+        self.set_status(
+            Status::Info,
+            &format!("Backup[{:0>3}] has been deleted.", deleted_entry.id),
         );
 
         Ok(())
@@ -316,6 +345,18 @@ mod tests {
         ids
     }
 
+    fn add_test_backups(app: &mut App, target_id: &str) -> Target {
+        let mut target = app.repo.load(target_id).unwrap();
+        let bkdir = app.repo.make_backup_dir_path(&target);
+        for i in 1..=3 {
+            let entry = target.new_backup_entry(&bkdir, "tar.gz");
+            let _ = std::fs::File::create(&entry.path); // make dummy backup file.
+            let _ = target.register_backup_entry(entry);
+        }
+        let target = app.repo.update(&target).unwrap();
+        target.into()
+    }
+
     #[test]
     fn test_fetch_targets() {
         let temp = mktemp::TempDir::new().unwrap();
@@ -389,11 +430,41 @@ mod tests {
             let temp = mktemp::TempDir::new().unwrap();
             let mut app = make_app(&temp);
 
-            let _ = add_test_targets(&mut app);
-            app.fetch_targets();
-            assert_eq!(app.targets.len(), 3);
-
             let result = app.delete_current_target();
+            assert!(result.is_err());
+        }
+    }
+
+    mod delete_backup {
+        use super::*;
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let ids = add_test_targets(&mut app);
+            app.fetch_targets();
+
+            let target = add_test_backups(&mut app, &ids[1]);
+            assert_eq!(target.backups.len(), 3);
+
+            app.current_target = Some(target.clone());
+            app.cursor_backup = 1;
+
+            let result = app.delete_current_backup();
+            assert!(result.is_ok());
+
+            let target: Target = app.repo.load(&target.id).unwrap().into();
+            assert_eq!(target.backups.len(), 2);
+        }
+
+        #[test]
+        fn it_fails_when_current_target_not_set() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let result = app.delete_current_backup();
             assert!(result.is_err());
         }
     }

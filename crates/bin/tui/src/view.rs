@@ -65,7 +65,7 @@ impl View {
             Some(app::Popup::RegisterNewTarget) => render_register_target_popup(frame, &app),
             Some(app::Popup::DeleteTarget) => render_delete_target_popup(frame, &app),
             Some(app::Popup::TakeBackup) => render_take_backup_popup(frame, &app),
-            Some(app::Popup::DeleteBackup) => {}
+            Some(app::Popup::DeleteBackup) => render_delete_backup_popup(frame, &app),
             Some(app::Popup::Restore) => {}
             None => {}
         }
@@ -618,6 +618,58 @@ fn render_take_backup_popup(frame: &mut Frame, app: &app::App) {
         ("Cancel", vec!["Esc"]),
         ("Submit", vec!["Enter"]),
     ]));
+    let footer = Paragraph::new(lines);
+    frame.render_widget(footer, chunk_footer);
+}
+
+fn render_delete_backup_popup(frame: &mut Frame, app: &app::App) {
+    // Render popup base
+    let popup = popup_area(75, 50, frame.area());
+    let popup_block = Block::bordered()
+        .title(" Delete a backup confirmation ")
+        .style(Style::default().bg(Color::DarkGray));
+    frame.render_widget(Clear, popup);
+    frame.render_widget(popup_block, popup);
+
+    // Layout
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints([
+            Constraint::Length(1), // spacer
+            Constraint::Min(5),
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+        ])
+        .split(popup);
+    let chunk_desc = chunks[1];
+    let chunk_footer = chunks[3];
+
+    // Description
+    let target = app.current_target.as_ref().unwrap().clone();
+    let entry = target.backups.get(app.cursor_backup).unwrap().clone();
+
+    let desc = Paragraph::new(vec![
+        Line::from(vec![
+            Span::styled("Warning", Style::default().fg(Color::Red)),
+            Span::raw(": This action cannot be undone!"),
+        ]),
+        Line::from(format!(
+            "Do you want to delete the backup {:0>3}?",
+            entry.id
+        )),
+        Line::raw(""),
+        Line::from(format!("Timestamp: {}", entry.timestamp.to_rfc3339())),
+        Line::raw("Note:"),
+        Line::from(entry.note),
+    ]);
+    frame.render_widget(desc, chunk_desc);
+
+    // Footer
+    let mut lines = manual_lines(&vec![
+        ("Cancel", vec!["Esc", "Backspace", "q"]),
+        ("Delete a backup", vec!["y"]),
+    ]);
     let footer = Paragraph::new(lines);
     frame.render_widget(footer, chunk_footer);
 }
