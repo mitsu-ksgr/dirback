@@ -667,7 +667,7 @@ fn render_delete_backup_popup(frame: &mut Frame, app: &app::App) {
 
     // Footer
     let mut lines = manual_lines(&vec![
-        ("Cancel", vec!["Esc", "Backspace", "q"]),
+        ("Cancel", vec!["Esc", "Backspace", "q", "n"]),
         ("Delete a backup", vec!["y"]),
     ]);
     let footer = Paragraph::new(lines);
