@@ -36,7 +36,8 @@ impl View {
             .split(frame.area());
 
         // Header
-        let header = make_header_panel("Dirback - v0.1.0");
+        let app_title = format!("Dirback - {}", env!("CARGO_PKG_VERSION"));
+        let header = make_header_panel(&app_title);
         frame.render_widget(header, chunks[0]);
 
         // Main: target-list panel.
