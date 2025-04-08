@@ -8,8 +8,6 @@ use crossterm::event::{KeyCode, KeyEvent};
 use tracing::info;
 
 pub fn handle_key_events(app: &mut app::App, key: KeyEvent) {
-    info!("Handlekey: {key:?}");
-
     if app.current_popup.is_some() {
         match app.current_popup {
             Some(app::Popup::RegisterNewTarget) => in_register_target_popup(app, key),
