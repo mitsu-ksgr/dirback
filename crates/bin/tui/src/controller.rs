@@ -5,7 +5,6 @@
 use crate::app;
 
 use crossterm::event::{KeyCode, KeyEvent};
-use tracing::info;
 
 pub fn handle_key_events(app: &mut app::App, key: KeyEvent) {
     if app.current_popup.is_some() {
