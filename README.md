@@ -6,7 +6,7 @@ dirback is a simple directory-based backup tool.
 Back up the target directory with targ.gz.
 
 It can back up the target directory as a `tar.gz`.
-It also allows for easy restoration from the backup.
+it also allows for easy restoration from the backup.
 
 
 ## Applications
