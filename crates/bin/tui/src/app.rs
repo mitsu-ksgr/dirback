@@ -103,7 +103,7 @@ impl App {
     // TODO: 要らない？
     pub fn select_target(&mut self, target_id: &str) -> Option<()> {
         let adapter = GetTargetAdapter::new(&self.repo);
-        match adapter.execute(&target_id) {
+        match adapter.execute(target_id) {
             Some(target) => {
                 self.current_target = Some(target.clone());
                 //self.switch_panel(Panel::TargetInfo);
@@ -121,9 +121,9 @@ impl App {
             anyhow::bail!("Target path is invalid: '{}'", path.to_string_lossy());
         }
 
-        let path = std::fs::canonicalize(&path)?;
+        let path = std::fs::canonicalize(path)?;
         let mut usecase = RegisterTargetUsecase::new(&mut self.repo);
-        let _ = usecase.execute(&name, &path)?;
+        let _ = usecase.execute(name, &path)?;
 
         self.fetch_targets();
         self.set_status(Status::Info, &format!("New target '{}' registered!", name));
@@ -251,7 +251,7 @@ impl App {
                 self.cursor_backup = 0;
             }
             Panel::TargetInfo => {
-                if self.targets.len() == 0 {
+                if self.targets.is_empty() {
                     return false;
                 }
 
@@ -266,7 +266,7 @@ impl App {
             }
         }
 
-        return true;
+        true
     }
 
     //-------------------------------------------------------------------------
@@ -312,21 +312,18 @@ impl App {
             return false;
         }
 
-        match popup {
-            Popup::DeleteTarget => {
-                if let Some(target) = self.targets.get(self.cursor_target) {
-                    self.current_target = Some(target.clone());
-                } else {
-                    return false;
-                }
+        if popup == Popup::DeleteTarget {
+            if let Some(target) = self.targets.get(self.cursor_target) {
+                self.current_target = Some(target.clone());
+            } else {
+                return false;
             }
-            _ => {}
         }
 
         self.current_popup = Some(popup);
         self.popup_input_buf.push(String::new());
         self.popup_input_buf.push(String::new());
-        return true;
+        true
     }
 }
 
@@ -349,7 +346,7 @@ fn change_cursor(current: usize, change: isize, len: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use dirback::infra::repository::file_storage::FileStorageTargetRepository;
+    
     use dirback::internal::TargetRepository;
     use dirback::usecase::dto::Target;
 
@@ -500,7 +497,7 @@ mod tests {
 
     mod restore {
         use super::*;
-        use std::io::{Read, Write};
+        
 
         #[test]
         fn it_works() {
@@ -589,10 +586,10 @@ mod tests {
         #[test]
         fn it_works() {
             let mut app = make_dummy_app();
-            assert_eq!(app.quit_request, false);
+            assert!(!app.quit_request);
 
             app.quit();
-            assert_eq!(app.quit_request, true);
+            assert!(app.quit_request);
         }
     }
 
@@ -601,7 +598,7 @@ mod tests {
 
         #[test]
         fn it_works() {
-            let mut app = make_dummy_app();
+            let app = make_dummy_app();
             assert_eq!(
                 app.current_panel,
                 Panel::TargetList,

@@ -12,7 +12,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
 };
-use tracing::{debug, info};
+use tracing::info;
 
 #[derive(Default)]
 pub struct View {
@@ -42,31 +42,31 @@ impl View {
         // Main: target-list panel.
         match app.current_panel {
             app::Panel::TargetList => {
-                let target_list = make_target_list_panel(self, &app, chunks[1]);
+                let target_list = make_target_list_panel(self, app, chunks[1]);
                 frame.render_widget(target_list, chunks[1]);
             }
             app::Panel::TargetInfo => {
-                render_target_info_panel(frame, self, &app, chunks[1]);
+                render_target_info_panel(frame, self, app, chunks[1]);
             }
         }
 
         // State.
         if has_notify {
-            let status_bar = make_status_bar_panel(&app);
+            let status_bar = make_status_bar_panel(app);
             frame.render_widget(status_bar, chunks[2]);
         }
 
         // Footer.
-        let footer = make_footer_panel(&app);
+        let footer = make_footer_panel(app);
         frame.render_widget(footer, chunks[3]);
 
         // Popup
         match app.current_popup {
-            Some(app::Popup::RegisterNewTarget) => render_register_target_popup(frame, &app),
-            Some(app::Popup::DeleteTarget) => render_delete_target_popup(frame, &app),
-            Some(app::Popup::TakeBackup) => render_take_backup_popup(frame, &app),
-            Some(app::Popup::DeleteBackup) => render_delete_backup_popup(frame, &app),
-            Some(app::Popup::Restore) => render_restore_popup(frame, &app),
+            Some(app::Popup::RegisterNewTarget) => render_register_target_popup(frame, app),
+            Some(app::Popup::DeleteTarget) => render_delete_target_popup(frame, app),
+            Some(app::Popup::TakeBackup) => render_take_backup_popup(frame, app),
+            Some(app::Popup::DeleteBackup) => render_delete_backup_popup(frame, app),
+            Some(app::Popup::Restore) => render_restore_popup(frame, app),
             None => {}
         }
     }
@@ -79,7 +79,7 @@ fn make_target_list_panel<'a>(ui: &'a mut View, app: &'a app::App, chunk: Rect) 
     let mut title = String::from(" Targets ");
     let mut list_items = Vec::<ListItem>::new();
 
-    if app.targets.len() == 0 {
+    if app.targets.is_empty() {
         list_items.push(ListItem::new(Line::from(vec![Span::raw(
             "No targets registered yet.",
         )])));
@@ -216,10 +216,10 @@ fn render_target_info_panel(frame: &mut Frame, ui: &mut View, app: &app::App, ch
     frame.render_widget(target_info_panel, left);
 
     // Right part: Backup lists.
-    let backup_list = make_backup_list_panel(ui, &app, &target, right);
+    let backup_list = make_backup_list_panel(ui, app, &target, right);
     frame.render_widget(backup_list, right_top);
 
-    let backup_info = make_backup_info_panel(&app, &target);
+    let backup_info = make_backup_info_panel(app, &target);
     frame.render_widget(backup_info, right_bottom);
 }
 
@@ -235,17 +235,17 @@ fn make_target_info_panel(target: &Target) -> Paragraph {
 
     let lines = vec![
         Line::from(vec![
-            Span::styled("Name", key_style.clone()),
+            Span::styled("Name", key_style),
             Span::raw("    : "),
             Span::from(target.name.clone()),
         ]),
         Line::from(vec![
-            Span::styled("ID", key_style.clone()),
+            Span::styled("ID", key_style),
             Span::raw("      : "),
             Span::from(target.id.clone()),
         ]),
         Line::from(vec![
-            Span::styled("Target", key_style.clone()),
+            Span::styled("Target", key_style),
             Span::raw("  : "),
         ]),
         Line::from(vec![
@@ -253,7 +253,7 @@ fn make_target_info_panel(target: &Target) -> Paragraph {
             Span::from(target.path.display().to_string()),
         ]),
         Line::from(vec![
-            Span::styled("Backups", key_style.clone()),
+            Span::styled("Backups", key_style),
             Span::raw(" : "),
             Span::from(format!("{}", target.backups.len())),
         ]),
@@ -323,7 +323,7 @@ fn make_backup_list_panel<'a>(
 }
 
 fn make_backup_info_panel<'a>(app: &'a app::App, target: &Target) -> Paragraph<'a> {
-    let entry = target.backups.get(app.cursor_backup).clone();
+    let entry = target.backups.get(app.cursor_backup);
     if entry.is_none() {
         let block = Block::default()
             .borders(Borders::ALL)
@@ -344,22 +344,22 @@ fn make_backup_info_panel<'a>(app: &'a app::App, target: &Target) -> Paragraph<'
 
     let lines = vec![
         Line::from(vec![
-            Span::styled("ID", key_style.clone()),
+            Span::styled("ID", key_style),
             Span::raw("          : "),
             Span::from(format!("{:0>3}", entry.id)),
         ]),
         Line::from(vec![
-            Span::styled("Timestamp", key_style.clone()),
+            Span::styled("Timestamp", key_style),
             Span::raw("   : "),
             Span::from(entry.timestamp.to_rfc3339()),
         ]),
         Line::from(vec![
-            Span::styled("Backup File", key_style.clone()),
+            Span::styled("Backup File", key_style),
             Span::raw(" : "),
         ]),
         Line::from(Span::from(entry.path.display().to_string())),
         Line::from(vec![
-            Span::styled("Note ", key_style.clone()),
+            Span::styled("Note ", key_style),
             Span::raw("       : "),
         ]),
         Line::from(vec![Span::from(entry.note.clone())]),
@@ -392,7 +392,7 @@ fn make_footer_panel(app: &app::App) -> Paragraph {
     match app.current_panel {
         app::Panel::TargetList => {
             lines.push(Line::from(vec![
-                Span::styled("Target selection", title_style.clone()),
+                Span::styled("Target selection", title_style),
                 Span::raw(":"),
             ]));
             lines.append(&mut manual_lines(&vec![
@@ -403,7 +403,7 @@ fn make_footer_panel(app: &app::App) -> Paragraph {
         }
         app::Panel::TargetInfo => {
             lines.push(Line::from(vec![
-                Span::styled("Target actions", title_style.clone()),
+                Span::styled("Target actions", title_style),
                 Span::raw(":"),
             ]));
             lines.append(&mut manual_lines(&vec![
@@ -420,7 +420,7 @@ fn make_footer_panel(app: &app::App) -> Paragraph {
     let quit_style = Style::default().fg(Color::Red);
     let mut spans = vec![
         Span::raw("Quit with "),
-        Span::styled("<Ctrl+c>", quit_style.clone()),
+        Span::styled("<Ctrl+c>", quit_style),
     ];
     if app.current_panel == app::Panel::TargetList {
         spans.append(&mut vec![
@@ -467,7 +467,7 @@ fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
 
     // Editor params
     let edit_index = app.popup_edit_index;
-    let edit_name = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+    let edit_name = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
     let edit_path = app.popup_input_buf.get(1).unwrap_or(&String::new()).clone();
 
     // Inputs
@@ -492,7 +492,7 @@ fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
     if !app.popup_errors.is_empty() {
         let err_style = Style::default().fg(Color::Red);
         for err in app.popup_errors.iter() {
-            lines.push(Line::styled(err.clone(), err_style.clone()));
+            lines.push(Line::styled(err.clone(), err_style));
         }
         lines.push(Line::raw(""));
     }
@@ -548,7 +548,7 @@ fn render_delete_target_popup(frame: &mut Frame, app: &app::App) {
     frame.render_widget(header, chunk_header);
 
     // Confirmation form
-    let edit_confirm = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+    let edit_confirm = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
     let confirm_block = Block::bordered()
         .title(" Confrimation ")
         .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
@@ -560,7 +560,7 @@ fn render_delete_target_popup(frame: &mut Frame, app: &app::App) {
     if !app.popup_errors.is_empty() {
         let err_style = Style::default().fg(Color::Red);
         for err in app.popup_errors.iter() {
-            lines.push(Line::styled(err.clone(), err_style.clone()));
+            lines.push(Line::styled(err.clone(), err_style));
         }
         lines.push(Line::raw(""));
     }
@@ -598,7 +598,7 @@ fn render_take_backup_popup(frame: &mut Frame, app: &app::App) {
     let chunk_footer = chunks[5];
 
     // Confirmation form
-    let edit_note = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+    let edit_note = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
     let block = Block::bordered()
         .title(" Note ")
         .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
@@ -610,7 +610,7 @@ fn render_take_backup_popup(frame: &mut Frame, app: &app::App) {
     if !app.popup_errors.is_empty() {
         let err_style = Style::default().fg(Color::Red);
         for err in app.popup_errors.iter() {
-            lines.push(Line::styled(err.clone(), err_style.clone()));
+            lines.push(Line::styled(err.clone(), err_style));
         }
         lines.push(Line::raw(""));
     }
@@ -761,10 +761,10 @@ fn manual_lines<'a>(manuals: &Vec<(&str, Vec<&str>)>) -> Vec<Line<'a>> {
 
             if key.len() == 1 {
                 spans.push(Span::raw("'"));
-                spans.push(Span::styled(key, key_style.clone()));
+                spans.push(Span::styled(key, key_style));
                 spans.push(Span::raw("'"));
             } else {
-                spans.push(Span::styled(key, key_style.clone()));
+                spans.push(Span::styled(key, key_style));
             }
         }
 

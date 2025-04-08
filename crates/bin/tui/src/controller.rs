@@ -4,8 +4,8 @@
 
 use crate::app;
 
-use crossterm::event::{Event, KeyCode, KeyEvent};
-use tracing::{debug, info};
+use crossterm::event::{KeyCode, KeyEvent};
+use tracing::info;
 
 pub fn handle_key_events(app: &mut app::App, key: KeyEvent) {
     info!("Handlekey: {key:?}");
@@ -101,7 +101,7 @@ fn in_register_target_popup(app: &mut app::App, key: KeyEvent) {
         }
         KeyCode::Enter => {
             app.popup_errors.clear();
-            let name = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+            let name = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
             let path = app.popup_input_buf.get(1).unwrap_or(&String::new()).clone();
 
             // Check input.
@@ -152,7 +152,7 @@ fn in_delete_target_popup(app: &mut app::App, key: KeyEvent) {
         }
         KeyCode::Enter => {
             app.popup_errors.clear();
-            let confirm = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+            let confirm = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
             let target_name = app.current_target.as_ref().unwrap().name.clone();
 
             // Check input.
@@ -190,7 +190,7 @@ fn in_take_backup_popup(app: &mut app::App, key: KeyEvent) {
         }
         KeyCode::Enter => {
             app.popup_errors.clear();
-            let note = app.popup_input_buf.get(0).unwrap_or(&String::new()).clone();
+            let note = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
             match app.take_backup_of_current_target(&note) {
                 Ok(()) => app.hide_popup(),
                 Err(e) => app.popup_errors.push(e.to_string()),

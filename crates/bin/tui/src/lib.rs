@@ -2,10 +2,7 @@
 //! # DirbackTUI lib
 //!
 
-use ratatui::crossterm::{
-    event::{self, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
-    execute, terminal,
-};
+use ratatui::crossterm::event::{self, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 
 mod app;
 mod controller;

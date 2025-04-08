@@ -3,7 +3,7 @@
 //!
 
 use dirback::infra::app_path;
-use tracing::{debug, info};
+use tracing::info;
 
 mod logs;
 mod options;
