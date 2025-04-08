@@ -2,7 +2,6 @@
 //! # Dirback TUI Application
 //!
 
-use dirback::adapter::GetTargetAdapter;
 use dirback::adapter::ListTargetsAdapter;
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 use dirback::infra::service::targz_backup_service::TargzBackupService;
@@ -31,7 +30,6 @@ pub enum Popup {
 #[derive(Debug, PartialEq)]
 pub enum Status {
     Info,
-    Warn,
     Error,
 }
 
@@ -96,22 +94,6 @@ impl App {
             }
             Err(e) => {
                 self.set_status(Status::Error, &format!("Failed to load targets: {e}"));
-            }
-        }
-    }
-
-    // TODO: 要らない？
-    pub fn select_target(&mut self, target_id: &str) -> Option<()> {
-        let adapter = GetTargetAdapter::new(&self.repo);
-        match adapter.execute(target_id) {
-            Some(target) => {
-                self.current_target = Some(target.clone());
-                //self.switch_panel(Panel::TargetInfo);
-                Some(())
-            }
-            None => {
-                self.set_status(Status::Error, "Failed to load target: {target_id}");
-                None
             }
         }
     }
@@ -292,11 +274,6 @@ impl App {
         self.message = Some(message.to_string());
     }
 
-    pub fn clear_status(&mut self) {
-        self.status = None;
-        self.message = None;
-    }
-
     //-------------------------------------------------------------------------
     // Popup
     //-------------------------------------------------------------------------
@@ -346,7 +323,7 @@ fn change_cursor(current: usize, change: isize, len: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     use dirback::internal::TargetRepository;
     use dirback::usecase::dto::Target;
 
@@ -374,7 +351,7 @@ mod tests {
     fn add_test_backups(app: &mut App, target_id: &str) -> Target {
         let mut target = app.repo.load(target_id).unwrap();
         let bkdir = app.repo.make_backup_dir_path(&target);
-        for i in 1..=3 {
+        for _ in 1..=3 {
             let entry = target.new_backup_entry(&bkdir, "tar.gz");
             let _ = std::fs::File::create(&entry.path); // make dummy backup file.
             let _ = target.register_backup_entry(entry);
@@ -419,7 +396,7 @@ mod tests {
             let temp = mktemp::TempDir::new().unwrap();
             let mut app = make_app(&temp);
 
-            let ids = add_test_targets(&mut app);
+            let _ = add_test_targets(&mut app);
             app.fetch_targets();
             assert_eq!(app.targets.len(), 3);
 
@@ -497,7 +474,6 @@ mod tests {
 
     mod restore {
         use super::*;
-        
 
         #[test]
         fn it_works() {
@@ -518,7 +494,7 @@ mod tests {
 
             // Create a backup
             app.current_target = Some(target.clone());
-            app.take_backup_of_current_target("");
+            let _ = app.take_backup_of_current_target("");
 
             // Remove test file
             let _ = std::fs::remove_dir_all(&targetdir);
@@ -553,30 +529,6 @@ mod tests {
 
             let result = app.restore_target_with_current_backup();
             assert!(result.is_err());
-        }
-    }
-
-    mod select_target {
-        use super::*;
-
-        #[test]
-        fn it_works() {
-            let temp = mktemp::TempDir::new().unwrap();
-            let mut app = make_app(&temp);
-
-            let ids = add_test_targets(&mut app);
-            app.fetch_targets();
-
-            let target_id = &ids[1];
-
-            assert_eq!(app.current_target, None);
-
-            let result = app.select_target(target_id);
-            assert!(result.is_some());
-            assert!(app.current_target.is_some());
-
-            let target = &app.current_target.unwrap();
-            assert_eq!(target.id, *target_id);
         }
     }
 
@@ -648,17 +600,9 @@ mod tests {
             assert_eq!(app.status, Some(Status::Info));
             assert_eq!(app.message, Some(String::from("test message")));
 
-            app.set_status(Status::Warn, "warning");
-            assert_eq!(app.status, Some(Status::Warn));
-            assert_eq!(app.message, Some(String::from("warning")));
-
             app.set_status(Status::Error, "error");
             assert_eq!(app.status, Some(Status::Error));
             assert_eq!(app.message, Some(String::from("error")));
-
-            app.clear_status();
-            assert!(app.status.is_none());
-            assert!(app.message.is_none());
         }
     }
 

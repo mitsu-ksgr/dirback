@@ -153,7 +153,6 @@ fn make_target_list_panel<'a>(ui: &'a mut View, app: &'a app::App, chunk: Rect) 
 fn make_status_bar_panel(app: &app::App) -> Paragraph {
     let (title, color) = match app.status {
         Some(app::Status::Info) => (String::from(" Notice "), Color::Blue),
-        Some(app::Status::Warn) => (String::from(" Warning "), Color::Yellow),
         Some(app::Status::Error) => (String::from(" ERROR "), Color::Red),
         None => (String::from(""), Color::Black), // <-- unexpected!
     };
@@ -244,10 +243,7 @@ fn make_target_info_panel(target: &Target) -> Paragraph {
             Span::raw("      : "),
             Span::from(target.id.clone()),
         ]),
-        Line::from(vec![
-            Span::styled("Target", key_style),
-            Span::raw("  : "),
-        ]),
+        Line::from(vec![Span::styled("Target", key_style), Span::raw("  : ")]),
         Line::from(vec![
             Span::raw("    "),
             Span::from(target.path.display().to_string()),
@@ -467,7 +463,11 @@ fn render_register_target_popup(frame: &mut Frame, app: &app::App) {
 
     // Editor params
     let edit_index = app.popup_edit_index;
-    let edit_name = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
+    let edit_name = app
+        .popup_input_buf
+        .first()
+        .unwrap_or(&String::new())
+        .clone();
     let edit_path = app.popup_input_buf.get(1).unwrap_or(&String::new()).clone();
 
     // Inputs
@@ -548,7 +548,11 @@ fn render_delete_target_popup(frame: &mut Frame, app: &app::App) {
     frame.render_widget(header, chunk_header);
 
     // Confirmation form
-    let edit_confirm = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
+    let edit_confirm = app
+        .popup_input_buf
+        .first()
+        .unwrap_or(&String::new())
+        .clone();
     let confirm_block = Block::bordered()
         .title(" Confrimation ")
         .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
@@ -598,7 +602,11 @@ fn render_take_backup_popup(frame: &mut Frame, app: &app::App) {
     let chunk_footer = chunks[5];
 
     // Confirmation form
-    let edit_note = app.popup_input_buf.first().unwrap_or(&String::new()).clone();
+    let edit_note = app
+        .popup_input_buf
+        .first()
+        .unwrap_or(&String::new())
+        .clone();
     let block = Block::bordered()
         .title(" Note ")
         .style(Style::default().bg(Color::LightYellow).fg(Color::Black));
