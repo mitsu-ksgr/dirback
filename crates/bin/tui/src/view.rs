@@ -66,7 +66,7 @@ impl View {
             Some(app::Popup::DeleteTarget) => render_delete_target_popup(frame, &app),
             Some(app::Popup::TakeBackup) => render_take_backup_popup(frame, &app),
             Some(app::Popup::DeleteBackup) => render_delete_backup_popup(frame, &app),
-            Some(app::Popup::Restore) => {}
+            Some(app::Popup::Restore) => render_restore_popup(frame, &app),
             None => {}
         }
     }
@@ -654,6 +654,7 @@ fn render_delete_backup_popup(frame: &mut Frame, app: &app::App) {
             Span::styled("Warning", Style::default().fg(Color::Red)),
             Span::raw(": This action cannot be undone!"),
         ]),
+        Line::raw(""),
         Line::from(format!(
             "Do you want to delete the backup {:0>3}?",
             entry.id
@@ -666,9 +667,65 @@ fn render_delete_backup_popup(frame: &mut Frame, app: &app::App) {
     frame.render_widget(desc, chunk_desc);
 
     // Footer
-    let mut lines = manual_lines(&vec![
+    let lines = manual_lines(&vec![
         ("Cancel", vec!["Esc", "Backspace", "q", "n"]),
         ("Delete a backup", vec!["y"]),
+    ]);
+    let footer = Paragraph::new(lines);
+    frame.render_widget(footer, chunk_footer);
+}
+
+fn render_restore_popup(frame: &mut Frame, app: &app::App) {
+    // Render popup base
+    let popup = popup_area(75, 50, frame.area());
+    let popup_block = Block::bordered()
+        .title(" Restore confirmation ")
+        .style(Style::default().bg(Color::DarkGray));
+    frame.render_widget(Clear, popup);
+    frame.render_widget(popup_block, popup);
+
+    // Layout
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints([
+            Constraint::Length(1), // spacer
+            Constraint::Min(5),
+            Constraint::Length(1), // spacer
+            Constraint::Length(3),
+        ])
+        .split(popup);
+    let chunk_desc = chunks[1];
+    let chunk_footer = chunks[3];
+
+    // Description
+    let target = app.current_target.as_ref().unwrap().clone();
+    let entry = target.backups.get(app.cursor_backup).unwrap().clone();
+    let target_dir = target.path.display().to_string();
+
+    let desc = Paragraph::new(vec![
+        Line::from(vec![
+            Span::styled("Warning", Style::default().fg(Color::Red)),
+            Span::raw(": This action cannot be undone!"),
+        ]),
+        Line::raw(""),
+        Line::from(format!(
+            "Do you want to retore with the backup {:0>3}?",
+            entry.id
+        )),
+        Line::from("The target directory will be overwritten."),
+        Line::raw(""),
+        Line::from(format!("Target: {target_dir}")),
+        Line::from(format!("Timestamp: {}", entry.timestamp.to_rfc3339())),
+        Line::raw("Note:"),
+        Line::from(entry.note),
+    ]);
+    frame.render_widget(desc, chunk_desc);
+
+    // Footer
+    let lines = manual_lines(&vec![
+        ("Cancel", vec!["Esc", "Backspace", "q", "n"]),
+        ("Restore", vec!["y"]),
     ]);
     let footer = Paragraph::new(lines);
     frame.render_widget(footer, chunk_footer);

@@ -11,6 +11,7 @@ use dirback::usecase::delete_backup::DeleteBackupUsecase;
 use dirback::usecase::delete_target::DeleteTargetUsecase;
 use dirback::usecase::dto::Target;
 use dirback::usecase::register_target::RegisterTargetUsecase;
+use dirback::usecase::restore::RestoreUsecase;
 
 #[derive(Debug, PartialEq)]
 pub enum Panel {
@@ -199,6 +200,34 @@ impl App {
             Status::Info,
             &format!("Backup[{:0>3}] has been deleted.", deleted_entry.id),
         );
+
+        Ok(())
+    }
+
+    pub fn restore_target_with_current_backup(&mut self) -> anyhow::Result<()> {
+        if self.current_target.is_none() {
+            anyhow::bail!("Target is none.");
+        }
+
+        let target = self.current_target.as_ref().unwrap().clone();
+        let entry = target.backups.get(self.cursor_backup);
+        if entry.is_none() {
+            anyhow::bail!("Backup is none.");
+        }
+        let entry = entry.unwrap();
+
+        // Restore
+        let service = TargzBackupService::new();
+        let mut usecase = RestoreUsecase::new(&mut self.repo, &service);
+
+        usecase.execute(&target.id, entry.id)?;
+
+        // Update current target
+        self.fetch_targets();
+        if let Some(target) = self.targets.iter().find(|t| t.id == target.id) {
+            self.current_target = Some(target.clone());
+        }
+        self.set_status(Status::Info, "Restore completed!");
 
         Ok(())
     }
@@ -465,6 +494,67 @@ mod tests {
             let mut app = make_app(&temp);
 
             let result = app.delete_current_backup();
+            assert!(result.is_err());
+        }
+    }
+
+    mod restore {
+        use super::*;
+        use std::io::{Read, Write};
+
+        #[test]
+        fn it_works() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let basedir = temp.path().join("dirback");
+            let _ = std::fs::create_dir_all(basedir);
+
+            // Test target
+            let targetdir = temp.path().join("test-target");
+            let _ = std::fs::create_dir_all(&targetdir);
+            let testfile = targetdir.join("test.txt");
+            let _ = std::fs::File::create(&testfile);
+
+            let target: Target = app.repo.add("TestTarget", &targetdir).unwrap().into();
+            app.fetch_targets();
+
+            // Create a backup
+            app.current_target = Some(target.clone());
+            app.take_backup_of_current_target("");
+
+            // Remove test file
+            let _ = std::fs::remove_dir_all(&targetdir);
+            let _ = std::fs::create_dir(&targetdir);
+            assert!(!testfile.exists());
+
+            // Restore
+            let result = app.restore_target_with_current_backup();
+            assert!(result.is_ok());
+            assert!(testfile.exists());
+        }
+
+        #[test]
+        fn it_fails_when_current_target_not_set() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let result = app.restore_target_with_current_backup();
+            assert!(result.is_err());
+        }
+
+        #[test]
+        fn it_fails_when_current_backup_not_set() {
+            let temp = mktemp::TempDir::new().unwrap();
+            let mut app = make_app(&temp);
+
+            let _ = add_test_targets(&mut app);
+            app.fetch_targets();
+
+            let target = app.targets[1].clone();
+            app.current_target = Some(target.clone());
+
+            let result = app.restore_target_with_current_backup();
             assert!(result.is_err());
         }
     }

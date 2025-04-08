@@ -16,6 +16,7 @@ pub fn handle_key_events(app: &mut app::App, key: KeyEvent) {
             Some(app::Popup::DeleteTarget) => in_delete_target_popup(app, key),
             Some(app::Popup::TakeBackup) => in_take_backup_popup(app, key),
             Some(app::Popup::DeleteBackup) => in_delete_backup_popup(app, key),
+            Some(app::Popup::Restore) => in_restore_popup(app, key),
             _ => {}
         }
     } else {
@@ -68,7 +69,7 @@ fn in_target_info_panel(app: &mut app::App, key: KeyEvent) {
             app.show_popup(app::Popup::DeleteBackup);
         }
         KeyCode::Enter => {
-            // TODO: Restore popup.
+            app.show_popup(app::Popup::Restore);
         }
         KeyCode::Esc | KeyCode::Backspace | KeyCode::Char('q') => {
             app.switch_panel(app::Panel::TargetList);
@@ -207,6 +208,22 @@ fn in_delete_backup_popup(app: &mut app::App, key: KeyEvent) {
         KeyCode::Char('y') => {
             app.popup_errors.clear();
             match app.delete_current_backup() {
+                Ok(()) => app.hide_popup(),
+                Err(e) => app.popup_errors.push(e.to_string()),
+            }
+        }
+        _ => {}
+    }
+}
+
+fn in_restore_popup(app: &mut app::App, key: KeyEvent) {
+    match key.code {
+        KeyCode::Esc | KeyCode::Backspace | KeyCode::Char('q') | KeyCode::Char('n') => {
+            app.hide_popup();
+        }
+        KeyCode::Char('y') => {
+            app.popup_errors.clear();
+            match app.restore_target_with_current_backup() {
                 Ok(()) => app.hide_popup(),
                 Err(e) => app.popup_errors.push(e.to_string()),
             }
