@@ -216,7 +216,7 @@ fn render_target_info_panel(frame: &mut Frame, ui: &mut View, app: &app::App, ch
     frame.render_widget(target_info_panel, left);
 
     // Right part: Backup lists.
-    let backup_list = make_backup_list_panel(ui, app, &target, right);
+    let backup_list = make_backup_list_panel(ui, app, &target, right_top);
     frame.render_widget(backup_list, right_top);
 
     let backup_info = make_backup_info_panel(app, &target);
