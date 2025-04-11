@@ -1,13 +1,24 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
 
+  import { dispatch } from "$lib/api/dispatcher";
+  import { IS_MOCK } from "$lib/config";
+
+  import { getTarget } from "$lib/api/get-target";
+  import type { Target } from "$lib/api/types/target";
+
   // Rust: Command dispatcher test.
   let target_id = $state("");
   let cmdResult = $state("");
+
+  let target = $state("");
+
   async function test_dispatch(event: Event) {
     event.preventDefault();
 
     console.log(`TargetID: ${target_id}`);
+
+    /*
     cmdResult = await invoke("command_dispatcher", {
       cmd: {
         type: "GetTarget",
@@ -16,6 +27,18 @@
         }
       }
     });
+    */
+
+    /*
+    cmdResult = await dispatch({
+      type: "GetTarget",
+      payload: {
+        id: target_id,
+      },
+    });
+    */
+
+    target = await getTarget(target_id);
   }
 </script>
 
@@ -36,11 +59,14 @@
 
   <h2>Command Dispatcher Testing</h2>
 
+  <p>IsMock? {IS_MOCK}</p>
+
   <form class="row" onsubmit={test_dispatch}>
     <input id="target_id" placeholder="target-id" bind:value={target_id} />
     <button type="submit">GetTarget</button>
   </form>
   <pre><code>{JSON.stringify(cmdResult, null, 2)}</code></pre>
+  <pre><code>{JSON.stringify(target, null, 4)}</code></pre>
 </main>
 
 <style>
