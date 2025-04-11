@@ -9,6 +9,13 @@ This application is implemented mainly using the following frameworks.
 - [Svelte](https://svelte.dev/)
 
 
+## Support platforms
+- [ ] Linux (X11)
+- [ ] Windows 10~
+- [ ] macOS
+
+
+
 ## Development
 ### Dependencies
 - Docker

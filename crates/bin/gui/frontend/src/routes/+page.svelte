@@ -1,13 +1,21 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
 
-  let name = $state("");
-  let greetMsg = $state("");
-
-  async function greet(event: Event) {
+  // Rust: Command dispatcher test.
+  let target_id = $state("");
+  let cmdResult = $state("");
+  async function test_dispatch(event: Event) {
     event.preventDefault();
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsg = await invoke("greet", { name });
+
+    console.log(`TargetID: ${target_id}`);
+    cmdResult = await invoke("command_dispatcher", {
+      cmd: {
+        type: "GetTarget",
+        payload: {
+          id: target_id,
+        }
+      }
+    });
   }
 </script>
 
@@ -25,13 +33,14 @@
       <img src="/svelte.svg" class="logo svelte-kit" alt="SvelteKit Logo" />
     </a>
   </div>
-  <p>Click on the Tauri, Vite, and SvelteKit logos to learn more.</p>
 
-  <form class="row" onsubmit={greet}>
-    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
-    <button type="submit">Greet</button>
+  <h2>Command Dispatcher Testing</h2>
+
+  <form class="row" onsubmit={test_dispatch}>
+    <input id="target_id" placeholder="target-id" bind:value={target_id} />
+    <button type="submit">GetTarget</button>
   </form>
-  <p>{greetMsg}</p>
+  <pre><code>{JSON.stringify(cmdResult, null, 2)}</code></pre>
 </main>
 
 <style>
