@@ -10,7 +10,7 @@ export async function getTarget(target_id: string): Promise<Target | null> {
     return await dispatch({
         type: "GetTarget",
         payload: {
-            id: target_id,
+          target_id,
         },
     });
 }

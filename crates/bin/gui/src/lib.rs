@@ -5,7 +5,7 @@
 mod commands;
 mod dispatcher;
 
-use crate::commands::Command;
+use crate::commands::CommandType;
 use crate::dispatcher::Dispatcher;
 
 use tauri::Manager;
@@ -21,14 +21,20 @@ struct AppState {
 #[tauri::command]
 async fn command_dispatcher(
     state: tauri::State<'_, AppState>,
-    cmd: Command,
+    cmd: CommandType,
 ) -> Result<serde_json::Value, String> {
+    println!("command_dispatcher");
     let dispatcher = Dispatcher::new(&state.datadir);
-    dispatcher.dispatch(cmd)
+
+    match dispatcher.dispatch(cmd) {
+        Ok(result) => Ok(result),
+        Err(e) => Err(e.to_string()),
+    }
 }
 
 pub fn run(datadir: &std::path::Path) -> anyhow::Result<()> {
     let datadir = datadir.to_path_buf();
+
     tauri::Builder::default()
         .setup(|app| {
             app.manage(AppState { datadir });

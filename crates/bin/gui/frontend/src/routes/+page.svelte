@@ -188,4 +188,9 @@ button {
   }
 }
 
+pre, code {
+  background-color: darkblue;
+  text-align: left;
+}
+
 </style>

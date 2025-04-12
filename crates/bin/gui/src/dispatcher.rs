@@ -3,6 +3,8 @@
 //!
 
 use crate::commands::Command;
+use crate::commands::CommandType;
+use crate::commands::GetTarget;
 
 pub struct Dispatcher {
     pub datadir: std::path::PathBuf,
@@ -15,30 +17,18 @@ impl Dispatcher {
         }
     }
 
-    pub fn dispatch(&self, cmd: Command) -> Result<serde_json::Value, String> {
+    pub fn dispatch(&self, cmd: CommandType) -> anyhow::Result<serde_json::Value> {
         match cmd {
-            Command::ListTarget => {
-                let result = handle_list_target()?;
+            CommandType::ListTarget => {
+                let result = String::from("foo");
                 Ok(serde_json::json!({ "message": result }))
             }
-            Command::GetTarget { id } => {
-                let result = handle_get_target(&id)?;
-                Ok(serde_json::json!({
-                    "datadir": self.datadir.to_string_lossy(),
-                    "message": result,
-                }))
+            CommandType::GetTarget(payload) => {
+                let cmd = GetTarget;
+
+                let result = cmd.execute(&self.datadir, payload)?;
+                Ok(serde_json::json!(result))
             }
         }
     }
-}
-
-//
-// Test handlers
-//
-pub fn handle_list_target() -> anyhow::Result<String, String> {
-    Ok(format!(""))
-}
-
-pub fn handle_get_target(id: &str) -> anyhow::Result<String, String> {
-    Ok(format!("ID: '{id}'"))
 }
