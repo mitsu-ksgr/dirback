@@ -23,7 +23,7 @@ async fn command_dispatcher(
     state: tauri::State<'_, AppState>,
     cmd: CommandType,
 ) -> Result<serde_json::Value, String> {
-    println!("command_dispatcher");
+    println!("command_dispatcher: {cmd:#?}");
     let dispatcher = Dispatcher::new(&state.datadir);
 
     match dispatcher.dispatch(cmd) {

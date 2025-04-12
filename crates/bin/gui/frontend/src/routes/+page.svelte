@@ -7,27 +7,40 @@
   import type { Target } from "$lib/api/types/target";
   import { getTarget } from "$lib/api/get-target";
   import { listTargets } from "$lib/api/list-targets";
+  import { registerTarget } from "$lib/api/register-target";
 
   // Rust: Command dispatcher test.
   let command = $state("");
   let cmdResult = $state("");
 
   let target_id = $state("");
+  let name = $state("");
+  let path = $state("");
 
   async function onSubmit(event: Event) {
     event.preventDefault();
 
     console.log(`Command: ${command}`);
     console.log(`TargetID: ${target_id}`);
+    console.log(`Name: ${name}`);
+    console.log(`Path: ${path}`);
 
-    switch (command) {
-      case "GetTarget":
-        cmdResult = await getTarget(target_id);
-        break;
+    try {
+      switch (command) {
+        case "GetTarget":
+          cmdResult = await getTarget(target_id);
+          break;
 
-      case "ListTargets":
-        cmdResult = await listTargets();
-        break;
+        case "ListTargets":
+          cmdResult = await listTargets();
+          break;
+
+        case "RegisterTarget":
+          cmdResult = await registerTarget(name, path);
+          break;
+      }
+    } catch (error) {
+      cmdResult = `ERROR: ${error}`;
     }
   }
 </script>
@@ -57,12 +70,23 @@
       <select id="commands" bind:value={command}>
         <option value="GetTarget">GetTarget</option>
         <option value="ListTargets">ListTargets</option>
+        <option value="RegisterTarget">RegisterTarget</option>
       </select>
     </div>
 
     <div class="row">
       <label for="target_id">Target ID:</label>
       <input id="target_id" placeholder="target-id" bind:value={target_id} />
+    </div>
+
+    <div class="row">
+      <label for="name">Name:</label>
+      <input id="name" placeholder="name" bind:value={name} />
+    </div>
+
+    <div class="row">
+      <label for="path">Path:</label>
+      <input id="path" placeholder="path" bind:value={path} />
     </div>
 
     <button type="submit">Dispatch</button>
