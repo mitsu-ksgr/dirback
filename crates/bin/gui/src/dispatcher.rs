@@ -2,11 +2,10 @@
 //! # Command dispatcher
 //!
 
-use crate::commands::Command;
-use crate::commands::CommandType;
 use crate::commands::GetTarget;
 use crate::commands::ListTargets;
-use crate::commands::NoPayload;
+use crate::commands::RegisterTarget;
+use crate::commands::{Command, CommandType, NoPayload};
 
 pub struct Dispatcher {
     pub datadir: std::path::PathBuf,
@@ -29,6 +28,12 @@ impl Dispatcher {
 
             CommandType::GetTarget(payload) => {
                 let cmd = GetTarget;
+                let result = cmd.execute(&self.datadir, payload)?;
+                Ok(serde_json::json!(result))
+            }
+
+            CommandType::RegisterTarget(payload) => {
+                let cmd = RegisterTarget;
                 let result = cmd.execute(&self.datadir, payload)?;
                 Ok(serde_json::json!(result))
             }
