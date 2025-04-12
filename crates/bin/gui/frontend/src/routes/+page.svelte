@@ -4,41 +4,31 @@
   import { dispatch } from "$lib/api/dispatcher";
   import { IS_MOCK } from "$lib/config";
 
-  import { getTarget } from "$lib/api/get-target";
   import type { Target } from "$lib/api/types/target";
+  import { getTarget } from "$lib/api/get-target";
+  import { listTargets } from "$lib/api/list-targets";
 
   // Rust: Command dispatcher test.
-  let target_id = $state("");
+  let command = $state("");
   let cmdResult = $state("");
 
-  let target = $state("");
+  let target_id = $state("");
 
-  async function test_dispatch(event: Event) {
+  async function onSubmit(event: Event) {
     event.preventDefault();
 
+    console.log(`Command: ${command}`);
     console.log(`TargetID: ${target_id}`);
 
-    /*
-    cmdResult = await invoke("command_dispatcher", {
-      cmd: {
-        type: "GetTarget",
-        payload: {
-          id: target_id,
-        }
-      }
-    });
-    */
+    switch (command) {
+      case "GetTarget":
+        cmdResult = await getTarget(target_id);
+        break;
 
-    /*
-    cmdResult = await dispatch({
-      type: "GetTarget",
-      payload: {
-        id: target_id,
-      },
-    });
-    */
-
-    target = await getTarget(target_id);
+      case "ListTargets":
+        cmdResult = await listTargets();
+        break;
+    }
   }
 </script>
 
@@ -61,12 +51,23 @@
 
   <p>IsMock? {IS_MOCK}</p>
 
-  <form class="row" onsubmit={test_dispatch}>
-    <input id="target_id" placeholder="target-id" bind:value={target_id} />
-    <button type="submit">GetTarget</button>
+  <form onsubmit={onSubmit}>
+    <div class="row">
+      <label for="commands">Command:</label>
+      <select id="commands" bind:value={command}>
+        <option value="GetTarget">GetTarget</option>
+        <option value="ListTargets">ListTargets</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label for="target_id">Target ID:</label>
+      <input id="target_id" placeholder="target-id" bind:value={target_id} />
+    </div>
+
+    <button type="submit">Dispatch</button>
   </form>
   <pre><code>{JSON.stringify(cmdResult, null, 2)}</code></pre>
-  <pre><code>{JSON.stringify(target, null, 4)}</code></pre>
 </main>
 
 <style>
@@ -117,6 +118,7 @@
 .row {
   display: flex;
   justify-content: center;
+  margin-bottom: 1.0em;
 }
 
 a {

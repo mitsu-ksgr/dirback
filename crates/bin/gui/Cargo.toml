@@ -11,6 +11,9 @@ edition.workspace = true
 name = "dirback_gui_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
 [dependencies]
 dirback.workspace = true
 
@@ -23,7 +26,5 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-appender = { workspace = true }
 
-[build-dependencies]
+[dev-dependencies]
 mktemp.workspace = true
-
-tauri-build = { version = "2", features = [] }

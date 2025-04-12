@@ -5,6 +5,8 @@
 use crate::commands::Command;
 use crate::commands::CommandType;
 use crate::commands::GetTarget;
+use crate::commands::ListTargets;
+use crate::commands::NoPayload;
 
 pub struct Dispatcher {
     pub datadir: std::path::PathBuf,
@@ -19,13 +21,14 @@ impl Dispatcher {
 
     pub fn dispatch(&self, cmd: CommandType) -> anyhow::Result<serde_json::Value> {
         match cmd {
-            CommandType::ListTarget => {
-                let result = String::from("foo");
-                Ok(serde_json::json!({ "message": result }))
+            CommandType::ListTargets(_) => {
+                let cmd = ListTargets;
+                let result = cmd.execute(&self.datadir, NoPayload)?;
+                Ok(serde_json::json!(result))
             }
+
             CommandType::GetTarget(payload) => {
                 let cmd = GetTarget;
-
                 let result = cmd.execute(&self.datadir, payload)?;
                 Ok(serde_json::json!(result))
             }
