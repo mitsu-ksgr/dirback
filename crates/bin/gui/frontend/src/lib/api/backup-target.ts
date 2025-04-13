@@ -1,0 +1,17 @@
+/**
+ *  API: Backup target
+ */
+
+import { dispatch } from "./dispatcher";
+import type { Command } from "./types/command";
+import type { Target } from "./types/target";
+
+export async function backupTarget(target_id: string, note: string): Promise<Target | null> {
+  return await dispatch({
+    type: "BackupTarget",
+    payload: {
+      target_id,
+      note,
+    },
+  });
+}

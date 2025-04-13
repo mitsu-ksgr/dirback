@@ -9,6 +9,7 @@
   import { listTargets } from "$lib/api/list-targets";
   import { registerTarget } from "$lib/api/register-target";
   import { deleteTarget } from "$lib/api/delete-target";
+  import { backupTarget } from "$lib/api/backup-target";
 
   // Rust: Command dispatcher test.
   let command = $state("");
@@ -17,6 +18,7 @@
   let target_id = $state("");
   let name = $state("");
   let path = $state("");
+  let note = $state("");
 
   async function onSubmit(event: Event) {
     event.preventDefault();
@@ -42,6 +44,10 @@
 
         case "DeleteTarget":
           cmdResult = await deleteTarget(target_id);
+          break;
+
+        case "BackupTarget":
+          cmdResult = await backupTarget(target_id, note);
           break;
       }
     } catch (error) {
@@ -77,6 +83,7 @@
         <option value="ListTargets">ListTargets</option>
         <option value="RegisterTarget">RegisterTarget</option>
         <option value="DeleteTarget">DeleteTarget</option>
+        <option value="BackupTarget">BackupTarget</option>
       </select>
     </div>
 
@@ -93,6 +100,11 @@
     <div class="row">
       <label for="path">Path:</label>
       <input id="path" placeholder="path" bind:value={path} />
+    </div>
+
+    <div class="row">
+      <label for="note">Note:</label>
+      <input id="note" placeholder="note" bind:value={note} />
     </div>
 
     <button type="submit">Dispatch</button>
@@ -221,7 +233,8 @@ button {
 }
 
 pre, code {
-  background-color: darkblue;
+  color: black;
+  background-color: WhiteSmoke;
   text-align: left;
 }
 

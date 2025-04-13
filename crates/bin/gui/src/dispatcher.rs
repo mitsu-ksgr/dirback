@@ -2,6 +2,7 @@
 //! # Command dispatcher
 //!
 
+use crate::commands::BackupTarget;
 use crate::commands::DeleteTarget;
 use crate::commands::GetTarget;
 use crate::commands::ListTargets;
@@ -41,6 +42,12 @@ impl Dispatcher {
 
             CommandType::DeleteTarget(payload) => {
                 let cmd = DeleteTarget;
+                let result = cmd.execute(&self.datadir, payload)?;
+                Ok(serde_json::json!(result))
+            }
+
+            CommandType::BackupTarget(payload) => {
+                let cmd = BackupTarget;
                 let result = cmd.execute(&self.datadir, payload)?;
                 Ok(serde_json::json!(result))
             }
