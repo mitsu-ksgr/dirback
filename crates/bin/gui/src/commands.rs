@@ -8,6 +8,7 @@ pub mod delete_target;
 pub mod get_target;
 pub mod list_targets;
 pub mod register_target;
+pub mod delete_backup;
 
 pub use backup_target::BackupTarget;
 pub use command::Command;
@@ -16,6 +17,7 @@ pub use delete_target::DeleteTarget;
 pub use get_target::GetTarget;
 pub use list_targets::ListTargets;
 pub use register_target::RegisterTarget;
+pub use delete_backup::DeleteBackup;
 
 //
 // Define command types.
@@ -30,4 +32,5 @@ pub enum CommandType {
     RegisterTarget(register_target::RegisterTargetPayload),
     DeleteTarget(delete_target::DeleteTargetPayload),
     BackupTarget(backup_target::BackupTargetPayload),
+    DeleteBackup(delete_backup::DeleteBackupPayload),
 }

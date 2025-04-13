@@ -7,6 +7,7 @@ use crate::commands::DeleteTarget;
 use crate::commands::GetTarget;
 use crate::commands::ListTargets;
 use crate::commands::RegisterTarget;
+use crate::commands::DeleteBackup;
 use crate::commands::{Command, CommandType, NoPayload};
 
 pub struct Dispatcher {
@@ -48,6 +49,12 @@ impl Dispatcher {
 
             CommandType::BackupTarget(payload) => {
                 let cmd = BackupTarget;
+                let result = cmd.execute(&self.datadir, payload)?;
+                Ok(serde_json::json!(result))
+            }
+
+            CommandType::DeleteBackup(payload) => {
+                let cmd = DeleteBackup;
                 let result = cmd.execute(&self.datadir, payload)?;
                 Ok(serde_json::json!(result))
             }
