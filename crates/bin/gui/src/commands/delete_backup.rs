@@ -5,8 +5,8 @@
 use crate::commands::Command;
 
 use dirback::infra::repository::file_storage::FileStorageTargetRepository;
-use dirback::usecase::dto::BackupEntry;
 use dirback::usecase::delete_backup::DeleteBackupUsecase;
+use dirback::usecase::dto::BackupEntry;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -83,7 +83,8 @@ mod tests {
         assert_eq!(after_target.backups.len(), before_backup_count - 1);
         assert!(
             !after_target.backups.iter().any(|be| be.id == 1),
-            "target should not contain deleted backup entry.");
+            "target should not contain deleted backup entry."
+        );
     }
 
     #[test]
@@ -122,4 +123,3 @@ mod tests {
         assert!(result.is_err());
     }
 }
-

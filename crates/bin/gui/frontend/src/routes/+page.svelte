@@ -11,6 +11,7 @@
   import { deleteTarget } from "$lib/api/delete-target";
   import { backupTarget } from "$lib/api/backup-target";
   import { deleteBackup } from "$lib/api/delete-backup";
+  import { restoreTarget } from "$lib/api/restore-target";
 
   // Rust: Command dispatcher test.
   let command = $state("");
@@ -55,6 +56,10 @@
         case "DeleteBackup":
           cmdResult = await deleteBackup(target_id, backup_id);
           break;
+
+        case "RestoreTarget":
+          cmdResult = await restoreTarget(target_id, backup_id);
+          break;
       }
     } catch (error) {
       cmdResult = `ERROR: ${error}`;
@@ -91,6 +96,7 @@
         <option value="DeleteTarget">DeleteTarget</option>
         <option value="BackupTarget">BackupTarget</option>
         <option value="DeleteBackup">DeleteBackup</option>
+        <option value="RestoreTarget">RestoreTarget</option>
       </select>
     </div>
 
