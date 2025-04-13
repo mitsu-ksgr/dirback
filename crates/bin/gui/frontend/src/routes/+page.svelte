@@ -8,6 +8,7 @@
   import { getTarget } from "$lib/api/get-target";
   import { listTargets } from "$lib/api/list-targets";
   import { registerTarget } from "$lib/api/register-target";
+  import { deleteTarget } from "$lib/api/delete-target";
 
   // Rust: Command dispatcher test.
   let command = $state("");
@@ -37,6 +38,10 @@
 
         case "RegisterTarget":
           cmdResult = await registerTarget(name, path);
+          break;
+
+        case "DeleteTarget":
+          cmdResult = await deleteTarget(target_id);
           break;
       }
     } catch (error) {
@@ -71,6 +76,7 @@
         <option value="GetTarget">GetTarget</option>
         <option value="ListTargets">ListTargets</option>
         <option value="RegisterTarget">RegisterTarget</option>
+        <option value="DeleteTarget">DeleteTarget</option>
       </select>
     </div>
 
