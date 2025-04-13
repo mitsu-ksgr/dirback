@@ -19,7 +19,11 @@ impl<'a, R: TargetRepository, B: BackupService> BackupUsecase<'a, R, B> {
     }
 
     pub fn execute(&mut self, target_id: &str, note: &str) -> anyhow::Result<()> {
-        let mut target = self.repo.load(target_id).unwrap();
+        let target = self.repo.load(target_id);
+        if target.is_none() {
+            anyhow::bail!("target not found: {target_id}");
+        }
+        let mut target = target.unwrap();
 
         // Make path to the backup file
         let backup_path = self.repo.make_backup_dir_path(&target);
@@ -122,5 +126,17 @@ mod tests {
             3,
             "backup() should be called 3 times."
         );
+    }
+
+    #[test]
+    fn it_returns_err_when_target_not_found() {
+        let mut repo = InMemoryTargetRepository::new();
+        let (backup_service, backup_counter, _) = TestBackupService::new();
+
+        let target_id = String::from("xxxxx-xxxxx-xxxxx");
+
+        let mut usecase = BackupUsecase::new(&mut repo, &backup_service);
+        let result = usecase.execute(&target_id, "this is test backup");
+        assert!(result.is_err());
     }
 }
