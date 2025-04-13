@@ -131,7 +131,7 @@ mod tests {
     #[test]
     fn it_returns_err_when_target_not_found() {
         let mut repo = InMemoryTargetRepository::new();
-        let (backup_service, backup_counter, _) = TestBackupService::new();
+        let (backup_service, _, _) = TestBackupService::new();
 
         let target_id = String::from("xxxxx-xxxxx-xxxxx");
 

@@ -62,8 +62,8 @@ impl Dispatcher {
 
             CommandType::RestoreTarget(payload) => {
                 let cmd = RestoreTarget;
-                let result = cmd.execute(&self.datadir, payload)?;
-                Ok(serde_json::json!(result))
+                cmd.execute(&self.datadir, payload)?;
+                Ok(serde_json::json!(()))
             }
         }
     }
