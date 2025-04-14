@@ -1,31 +1,45 @@
 <!----------------------------------------------------------------------------
   src/routes/+layout.svelte
 
-  Layout
+  Page layout
  !---------------------------------------------------------------------------->
 <script lang="ts">
   import "@picocss/pico";
+  import Header from "./Header.svelte";
+  import Footer from "./Footer.svelte";
 </script>
 
-<div class="app container">
-  <header>
-    <hgroup>
-      <h1>Dirback</h1>
-      <p>Simple directory-based backup tool.</p>
-    </hgroup>
-  </header>
+<div class="layout-container">
+  <div class="header">
+    <Header />
+  </div>
 
-  <slot />
+  <div class="main">
+    <slot />
+  </div>
 
-  <footer>
-    <p>Footer information</p>
-  </footer>
+  <div class="footer">
+    <Footer />
+  </div>
 </div>
 
 <style lang="scss">
-.app {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-}
-</style>
+  .layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 
+    .header, .footer {
+      flex-shrink: 0;
+      background: var(--pico-background-color, #f8f9fa);
+      padding: 1rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .main {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+  }
+</style>
