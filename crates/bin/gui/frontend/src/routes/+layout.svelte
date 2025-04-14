@@ -31,9 +31,16 @@
 
     .header, .footer {
       flex-shrink: 0;
-      background: var(--pico-background-color, #f8f9fa);
+      background: var(--pico-background-color);
       padding: 1rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .header {
+      border-bottom: 5px solid var(--pico-muted-border-color);
+    }
+
+    .footer {
+      border-top: 5px solid var(--pico-muted-border-color);
     }
 
     .main {

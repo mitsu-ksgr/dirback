@@ -9,9 +9,9 @@
   import Moon from 'lucide-svelte/icons/moon';
   import Sun from 'lucide-svelte/icons/sun';
 
-  let appVersion = '1.0.0';
-  let theme = 'dark';
-  let fgColor = 'white';
+  let appVersion = $state('1.0.0');
+  let theme = $state('dark');
+  let fgColor = $derived(theme === 'dark' ? 'white' : 'black');
 
   function updateFgColor() {
     fgColor = theme === 'dark' ? 'white' : 'black';
@@ -45,7 +45,7 @@
     </div>
     <div>
       <h3>
-        ver{appVersion}
+        v{appVersion}
       </h3>
     </div>
   </div>
@@ -53,21 +53,21 @@
   <div class="right">
     <div>
       <a
-        href="https://github.com"
+        href="https://github.com/mitsu-ksgr/dirback"
         target="_blank"
         rel="noopener noreferrer"
         class="gh-link"
         aria-label="GitHub"
         >
+        <Github size={24} color={fgColor} />
       </a>
-      <Github size={24} color={fgColor} />
     </div>
 
     <div on:click={toggleTheme}>
       {#if theme === 'dark'}
-        <Moon size={24} color="orange" />
+        <Moon size={24} color="Yellow" />
       {:else}
-        <Sun size={24} color="orangered" />
+        <Sun size={24} color="OrangeRed" />
       {/if}
     </div>
   </div>
@@ -78,7 +78,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
 
     .left {
       display: flex;
