@@ -1,70 +1,7 @@
+<!----------------------------------------------------------------------------
+  Top page
+ !---------------------------------------------------------------------------->
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
-
-  import { dispatch } from "$lib/api/dispatcher";
-  import { IS_MOCK } from "$lib/config";
-
-  import type { Target } from "$lib/api/types/target";
-  import { getTarget } from "$lib/api/get-target";
-  import { listTargets } from "$lib/api/list-targets";
-  import { registerTarget } from "$lib/api/register-target";
-  import { deleteTarget } from "$lib/api/delete-target";
-  import { backupTarget } from "$lib/api/backup-target";
-  import { deleteBackup } from "$lib/api/delete-backup";
-  import { restoreTarget } from "$lib/api/restore-target";
-
-  // Rust: Command dispatcher test.
-  let command = $state("");
-  let cmdResult = $state("");
-
-  let target_id = $state("");
-  let backup_id = $state("");
-  let name = $state("");
-  let path = $state("");
-  let note = $state("");
-
-  async function onSubmit(event: Event) {
-    event.preventDefault();
-
-    console.log(`Command: ${command}`);
-    console.log(`TargetID: ${target_id}`);
-    console.log(`Name: ${name}`);
-    console.log(`Path: ${path}`);
-
-    try {
-      switch (command) {
-        case "GetTarget":
-          cmdResult = await getTarget(target_id);
-          break;
-
-        case "ListTargets":
-          cmdResult = await listTargets();
-          break;
-
-        case "RegisterTarget":
-          cmdResult = await registerTarget(name, path);
-          break;
-
-        case "DeleteTarget":
-          cmdResult = await deleteTarget(target_id);
-          break;
-
-        case "BackupTarget":
-          cmdResult = await backupTarget(target_id, note);
-          break;
-
-        case "DeleteBackup":
-          cmdResult = await deleteBackup(target_id, backup_id);
-          break;
-
-        case "RestoreTarget":
-          cmdResult = await restoreTarget(target_id, backup_id);
-          break;
-      }
-    } catch (error) {
-      cmdResult = `ERROR: ${error}`;
-    }
-  }
 </script>
 
 <main class="container">
@@ -82,52 +19,9 @@
     </a>
   </div>
 
-  <h2>Command Dispatcher Testing</h2>
-
-  <p>IsMock? {IS_MOCK}</p>
-
-  <form onsubmit={onSubmit}>
-    <div class="row">
-      <label for="commands">Command:</label>
-      <select id="commands" bind:value={command}>
-        <option value="GetTarget">GetTarget</option>
-        <option value="ListTargets">ListTargets</option>
-        <option value="RegisterTarget">RegisterTarget</option>
-        <option value="DeleteTarget">DeleteTarget</option>
-        <option value="BackupTarget">BackupTarget</option>
-        <option value="DeleteBackup">DeleteBackup</option>
-        <option value="RestoreTarget">RestoreTarget</option>
-      </select>
-    </div>
-
-    <div class="row">
-      <label for="target_id">Target ID:</label>
-      <input id="target_id" placeholder="target-id" bind:value={target_id} />
-    </div>
-
-    <div class="row">
-      <label for="name">Name:</label>
-      <input id="name" placeholder="name" bind:value={name} />
-    </div>
-
-    <div class="row">
-      <label for="path">Path:</label>
-      <input id="path" placeholder="path" bind:value={path} />
-    </div>
-
-    <div class="row">
-      <label for="note">Note:</label>
-      <input id="note" placeholder="note" bind:value={note} />
-    </div>
-
-    <div class="row">
-      <label for="backup_id">Backup ID:</label>
-      <input id="backup_id" placeholder="backup-id" type="number" bind:value={backup_id} />
-    </div>
-
-    <button type="submit">Dispatch</button>
-  </form>
-  <pre><code>{JSON.stringify(cmdResult, null, 2)}</code></pre>
+  <p>
+    <a href="./debug">Debug</a>
+  </p>
 </main>
 
 <style>
