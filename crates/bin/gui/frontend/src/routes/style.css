@@ -15,3 +15,12 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.warn {
+  color: yellow;
+}
+
+.error {
+  color: crimson;
+}
+
+

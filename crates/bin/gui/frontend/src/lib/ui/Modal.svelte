@@ -6,7 +6,7 @@
 
   export let title = "Dialog";
   export let open = false;
-  export let onClickOutside: () => void;
+  export let onClickOutside: () => void = () => {};
 
   let dialog: HTMLDialogElement;
 
