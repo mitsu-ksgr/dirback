@@ -42,9 +42,10 @@
 
 <header>
   <div class="left">
-
     <div>
-      <h1>Dirback</h1>
+      <a href="/">
+        <h1>Dirback</h1>
+      </a>
     </div>
     <div>
       <h3>
