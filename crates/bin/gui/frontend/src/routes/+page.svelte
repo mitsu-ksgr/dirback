@@ -6,8 +6,9 @@
 
 <main>
   <h1>Dirback</h1>
+
   <p>
-    <a href="./debug">Debug</a>
+    Todo!!
   </p>
 </main>
 

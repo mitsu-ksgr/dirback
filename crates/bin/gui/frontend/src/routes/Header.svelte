@@ -8,6 +8,9 @@
   import Github from 'lucide-svelte/icons/github';
   import Moon from 'lucide-svelte/icons/moon';
   import Sun from 'lucide-svelte/icons/sun';
+  import BookHeart from 'lucide-svelte/icons/book-heart';
+
+  const isDev = import.meta.env.DEV;
 
   let appVersion = $state('1.0.0');
   let theme = $state('dark');
@@ -46,11 +49,22 @@
     <div>
       <h3>
         v{appVersion}
+        {#if isDev}
+          (DEV)
+        {/if}
       </h3>
     </div>
   </div>
 
   <div class="right">
+    {#if isDev}
+      <div>
+        <a href="debug">
+          <BookHeart size={24} color="DeepPink" />
+        </a>
+      </div>
+    {/if}
+
     <div>
       <a
         href="https://github.com/mitsu-ksgr/dirback"
