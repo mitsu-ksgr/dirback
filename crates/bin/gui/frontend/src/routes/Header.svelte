@@ -13,30 +13,24 @@
   const isDev = import.meta.env.DEV;
 
   let appVersion = $state('1.0.0');
-  let theme = $state('dark');
-  let fgColor = $derived(theme === 'dark' ? 'white' : 'black');
+  let curTheme = $state('dark');
+  let fgColor = $derived(curTheme === 'dark' ? 'white' : 'black');
 
-  function updateFgColor() {
-    fgColor = theme === 'dark' ? 'white' : 'black';
+  function setupTheme(theme) {
+    curTheme = theme;
+    localStorage.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
   }
 
   function toggleTheme() {
-    theme = theme === 'dark' ? 'light' : 'dark';
-    localStorage.theme = theme;
-    document.documentElement.setAttribute('data-theme', theme);
-    updateFgColor();
+    setupTheme(curTheme === 'dark' ? 'light' : 'dark');
   }
 
   onMount(async () => {
     appVersion = await getVersion();
 
-    const lsTheme = localStorage.getItem('theme');
-    if (lsTheme === 'light') {
-      theme = 'light';
-    } else {
-      theme = 'dark';
-    }
-    updateFgColor();
+    const theme = localStorage.getItem('theme');
+    setupTheme(theme === 'light' ? 'light' : 'dark');
   });
 </script>
 
@@ -79,7 +73,7 @@
     </div>
 
     <div on:click={toggleTheme}>
-      {#if theme === 'dark'}
+      {#if curTheme === 'dark'}
         <Moon size={24} color="Yellow" />
       {:else}
         <Sun size={24} color="OrangeRed" />
