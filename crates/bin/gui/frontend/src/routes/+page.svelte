@@ -100,11 +100,13 @@
   {:else}
     <div class="header">
       <div>
-        <h3>Targets</h3>
+        <h2>Targets</h2>
       </div>
 
       <div>
-        <button on:click={() => goto('register-target')}>New target</button>
+        <button on:click={() => goto('register-target')}>
+          Register new target
+        </button>
       </div>
     </div>
 
@@ -133,7 +135,7 @@
                 </span>
               </HoverElement>
             </td>
-            <td>{target.name}</td>
+            <td><a href="/target/{target.id}">{target.name}</a></td>
             <td>
               {#if target.backups.length > 0}
                 {fmtDateTime(target.backups.at(-1).timestamp)}
@@ -144,7 +146,7 @@
             <td>{target.backups.length}</td>
             <td><code>{target.path}</code></td>
             <td width="36px">
-              <div class="icon" on:click={() => handleDeleteRequest(target)}>
+              <div class="clickable-icon" on:click={() => handleDeleteRequest(target)}>
                 <Trash2 color="red" />
               </div>
             </td>
@@ -211,39 +213,19 @@
     align-items: center;
   }
 
-  .icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    transition: transform 0.2s ease;
-    transform-origin: center center;
-
-    &:hover {
-      transform: scale(1.3);
-      cursor: pointer;
-    }
-  }
-
   .btn-delete {
     background-color: red;
-  }
-
-  .warn {
-    color: yellow;
-  }
-
-  .error {
-    color: red;
   }
 
   tbody {
     tr {
       td:nth-child(3) {
+        width: 20rem;
         font-family: monospace;
       }
       td:nth-child(4) {
-        text-align: center;
+        width: 7rem;
+        text-align: right;
       }
     }
   }

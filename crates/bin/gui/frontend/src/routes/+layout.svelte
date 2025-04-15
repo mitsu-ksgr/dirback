@@ -5,6 +5,7 @@
  !---------------------------------------------------------------------------->
 <script lang="ts">
   import "@picocss/pico";
+  import "./style.css";
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
 </script>

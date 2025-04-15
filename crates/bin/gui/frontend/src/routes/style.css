@@ -15,12 +15,33 @@
   -webkit-text-size-adjust: 100%;
 }
 
+body {
+  font-size: 1.25rem;
+}
+
+button {
+  font-size: 1.3rem;
+}
+
+.clickable-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  transform-origin: center center;
+
+  &:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+}
+
 .warn {
-  color: yellow;
+  color: gold;
 }
 
 .error {
-  color: crimson;
+  color: red;
 }
-
 

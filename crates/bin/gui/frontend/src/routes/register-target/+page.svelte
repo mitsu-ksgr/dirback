@@ -53,7 +53,7 @@
 </script>
 
 <main>
-  <h3>Register new target</h3>
+  <h2>Register new target</h2>
 
   <form>
     <label for="name">Target Name:</label>
