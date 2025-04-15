@@ -1,0 +1,16 @@
+#
+# dirback gui
+#
+# Front-end server for development.
+#
+services:
+  app:
+    build: ./frontend
+    user: "1000:1000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # To avoid node_modules conflicts.
+    ports:
+      - "1420:1420"
+    stdin_open: true
+    tty: true

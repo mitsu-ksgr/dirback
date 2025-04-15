@@ -12,6 +12,7 @@ it also allows for easy restoration from the backup.
 ## Applications
 - [Command line tool](./crates/bin/cmd/README.md)
 - [TUI](./crates/bin/tui/README.md)
+- [GUI](./crates/bin/gui/README.md)
 
 
 ## Application data path

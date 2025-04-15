@@ -4,9 +4,10 @@
 
 use crate::domain::model;
 use crate::usecase::dto::Timestamp;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BackupEntry {
     pub id: u32,
     pub path: PathBuf,
