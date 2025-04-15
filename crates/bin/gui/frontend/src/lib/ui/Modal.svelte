@@ -27,7 +27,7 @@
   }
 </script>
 
-<dialog bind:this={dialog} class="modal" on:click={handleBackgroundOnClick}>
+<dialog bind:this={dialog} on:click={handleBackgroundOnClick}>
   <article>
     <header>
       <h3>{title}</h3>
@@ -42,13 +42,14 @@
 </dialog>
 
 <style lang="scss">
-  dialog.modal {
+  dialog {
     padding: 0;
     border: none;
     background: transparent;
   }
 
-  dialog.modal::backdrop {
+  dialog::backdrop {
     background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
   }
 </style>

@@ -36,7 +36,7 @@
       No backup targets have been registered yet &#x1f440;
     </p>
 
-    <button on:click={goto('register-target')}>
+    <button on:click={() => goto('register-target')}>
       &#x1f4c1; Register new target
     </button>
 
@@ -47,7 +47,7 @@
       </div>
 
       <div>
-        <button on:click={goto('register-target')}>New target</button>
+        <button on:click={() => goto('register-target')}>New target</button>
       </div>
     </div>
 
