@@ -4,6 +4,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getVersion } from '@tauri-apps/api/app';
+  import { goto } from "$app/navigation";
 
   import Github from 'lucide-svelte/icons/github';
   import Moon from 'lucide-svelte/icons/moon';
@@ -36,18 +37,17 @@
 
 <header>
   <div class="left">
-    <div>
-      <a href="/">
+    <div class="brand" on:click={() => goto('/')}>
+      <img src="/logo.png" />
+      <div class="titles">
         <h1>Dirback</h1>
-      </a>
-    </div>
-    <div>
-      <h3>
-        v{appVersion}
-        {#if isDev}
-          (DEV)
-        {/if}
-      </h3>
+        <h3>
+          v{appVersion}
+          {#if isDev}
+            (DEV)
+          {/if}
+        </h3>
+      </div>
     </div>
   </div>
 
@@ -90,11 +90,31 @@
 
     .left {
       display: flex;
-      align-items: end;
+      align-items: baseline;
       gap: 1rem;
 
-      h1, h3 {
-        margin: 0;
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+
+        img {
+          width: 48px;
+          height: auto;
+          display: block;
+        }
+
+        .titles {
+          display: flex;
+          align-items: last baseline;
+          gap: 0.5rem;
+
+          h1, h3 {
+            margin: 0;
+          }
+        }
+
       }
     }
 

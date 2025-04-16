@@ -75,3 +75,26 @@ change `"beforeDevCommand"` in `tauri.conf.json` as following:
 and run `yarn tauri dev` instead `cargo tauri dev`.
 
 
+## Icon
+- Icon source ... `./icon-src`
+
+Each icons can be generated using `cargo tauri icon` command.
+
+```
+% cd ./crates/bin/gui
+% cargo tauri icon ./icon-src/icon.png
+
+#> ./icons
+```
+
+Remove Android/iOS icons.
+
+```
+% rm -rf icons/android
+% rm -rf icons/ios
+```
+
+
+
+
+
