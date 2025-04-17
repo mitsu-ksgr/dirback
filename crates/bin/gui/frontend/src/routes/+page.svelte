@@ -145,13 +145,13 @@
                   <span>&#x1f4c1;</span>
                 {/snippet}
                 {#snippet hover()}
-                  <a href="/target/{target.id}">
+                  <a href={`/target?target_id=${target.id}`}>
                     <span>&#x1f4c2;</span>
                   </a>
                 {/snippet}
               </HoverElement>
             </td>
-            <td><a href="/target/{target.id}">{target.name}</a></td>
+            <td><a href={`/target?target_id=${target.id}`}>{target.name}</a></td>
             <td>
               {#if target.backups.length > 0}
                 {fmtDateTime(target.backups.at(-1)!.timestamp)}
