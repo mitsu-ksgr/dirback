@@ -41,15 +41,12 @@ export async function mockDispatch<T>(cmd: Command): Promise<T> {
 function findMockTarget(target_id: string): Target | null {
   const target = mockTargets.find((t) => t.id === target_id);
   if (target === undefined) {
-    console.log(`Mock#findMockTarget: target not found.`);
     return null;
   }
-  console.log(`Mock#findMockTarget: target found.`);
   return target;
 }
 
 function getTarget(target_id: string): Target | null {
-  console.log(`Mock: getTarget: target_id = ${target_id}`);
   return findMockTarget(target_id);
 }
 
