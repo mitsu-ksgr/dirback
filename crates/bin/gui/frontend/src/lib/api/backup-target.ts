@@ -6,7 +6,7 @@ import { dispatch } from "./dispatcher";
 import type { Command } from "./dispatcher";
 import type { Target } from "$lib/types/target";
 
-export async function backupTarget(target_id: string, note: string): Promise<Target | null> {
+export async function backupTarget(target_id: string, note: string): Promise<Target> {
   return await dispatch({
     type: "BackupTarget",
     payload: {

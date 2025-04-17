@@ -18,7 +18,7 @@
   let curTheme = $state('dark');
   let fgColor = $derived(curTheme === 'dark' ? 'white' : 'black');
 
-  function setupTheme(theme) {
+  function setupTheme(theme: string) {
     curTheme = theme;
     localStorage.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
@@ -38,18 +38,20 @@
 
 <header>
   <div class="left">
-    <div class="brand" on:click={() => goto('/')}>
-      <img src="/logo.png" />
-      <div class="titles">
-        <h1>Dirback</h1>
-        <h3>
-          v{appVersion}
-          {#if isDev}
-            (DEV)
-          {/if}
-        </h3>
+    <a class="brand-link" href="/">
+      <div class="brand">
+        <img src="/logo.png" alt="logo" />
+        <div class="titles">
+          <h1>Dirback</h1>
+          <h3>
+            v{appVersion}
+            {#if isDev}
+              (DEV)
+            {/if}
+          </h3>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 
   <div class="right">
@@ -73,13 +75,13 @@
       </a>
     </div>
 
-    <div on:click={toggleTheme}>
+    <button class="icon-btn" onclick={toggleTheme}>
       {#if curTheme === 'dark'}
         <Moon size={24} color="Yellow" />
       {:else}
         <Sun size={24} color="OrangeRed" />
       {/if}
-    </div>
+    </button>
   </div>
 </header>
 
@@ -93,6 +95,10 @@
       display: flex;
       align-items: baseline;
       gap: 1rem;
+
+      .brand-link {
+        text-decoration: none;
+      }
 
       .brand {
         display: flex;

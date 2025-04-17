@@ -38,7 +38,11 @@
       showDialog = true;
 
     } catch(e) {
-      error = e;
+      if (e instanceof Error) {
+        error = e.message;
+      } else {
+        error = String(e);
+      }
     }
   }
 
@@ -61,7 +65,7 @@
 
     <label for="path">Target directory path: </label>
     <div class="select-dir">
-      <button on:click={selectDirectory}>Choose directory</button>
+      <button onclick={selectDirectory}>Choose directory</button>
       <input id="path" bind:value={path} />
     </div>
 
@@ -72,8 +76,8 @@
     {/if}
 
     <div class="grid">
-      <button on:click={goto('/')} class="secondary">Cancel</button>
-      <button on:click={onSubmit}>Register</button>
+      <button onclick={() => goto('/')} class="secondary">Cancel</button>
+      <button onclick={onSubmit}>Register</button>
     </div>
   </form>
 
@@ -89,7 +93,7 @@
     </ul>
 
     <div slot="buttons">
-      <button on:click={handleOk}>OK</button>
+      <button onclick={handleOk}>OK</button>
     </div>
   </Modal>
 </main>

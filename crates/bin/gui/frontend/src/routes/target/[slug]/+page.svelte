@@ -10,6 +10,9 @@
   import Package from 'lucide-svelte/icons/package';
   import PackageOpen from 'lucide-svelte/icons/package-open';
 
+  import type { BackupEntry } from "$lib/types/backup-entry";
+  import type { Target } from "$lib/types/target";
+
   import { backupTarget } from "$lib/api/backup-target";
   import { deleteBackup } from "$lib/api/delete-backup";
   import { getTarget } from "$lib/api/get-target";
@@ -22,14 +25,18 @@
   const target_id = data.target_id;
 
   // Target
-  let target = $state(null);
+  let target: Target | null = $state(null);
   let error = $state("");
 
   async function fetchTarget() {
     try {
       target = await getTarget(target_id);
     } catch(e) {
-      error = e;
+      if (e instanceof Error) {
+        error = e.message;
+      } else {
+        error = String(e);
+      }
     }
   }
 
@@ -40,10 +47,10 @@
 
   // Trash
   let isDeleteModalOpen = $state(false);
-  let delBackup = $state(null);
+  let delBackup: BackupEntry | null = $state(null);
   let delError = $state("");
 
-  async function handleDeleteBackupRequest(backup) {
+  async function handleDeleteBackupRequest(backup: BackupEntry) {
     delBackup = backup;
     isDeleteModalOpen = true;
   }
@@ -55,6 +62,10 @@
   }
 
   async function onDeleteBackup() {
+    if (target === null || delBackup === null) {
+      return;
+    }
+
     try {
       const backup = await deleteBackup(target.id, delBackup.id);
 
@@ -72,7 +83,11 @@
       isOkModalOpen = true;
 
     } catch (e) {
-      delError = e;
+      if (e instanceof Error) {
+        delError = e.message;
+      } else {
+        delError = String(e);
+      }
     }
   }
 
@@ -88,6 +103,10 @@
   }
 
   async function onBackup() {
+    if (target === null) {
+      return;
+    }
+
     try {
       target = await backupTarget(target.id, backupNote);
       const backup = target.backups.at(-1);
@@ -99,20 +118,28 @@
 
       // Setup OK modal.
       okModalTitle = "Back up successful!!";
-      okModalMessage = `A new backup[${backup.id}] has been created.`;
+      if (backup === undefined) {
+        okModalMessage = "The backup was successful, but the latest backup information could not be obtained.";
+      } else {
+        okModalMessage = `A new backup[${backup.id}] has been created.`;
+      }
       isOkModalOpen = true;
 
     } catch(e) {
-      backupError = e;
+      if (e instanceof Error) {
+        backupError = e.message;
+      } else {
+        backupError = String(e);
+      }
     }
   }
 
   // Restore
   let isRestoreModalOpen = $state(false);
-  let resBackup = $state(null);
+  let resBackup: BackupEntry | null = $state(null);
   let resError = $state("");
 
-  async function handleRestoreRequest(backup) {
+  async function handleRestoreRequest(backup: BackupEntry) {
     resBackup = backup;
     isRestoreModalOpen = true;
   }
@@ -124,6 +151,10 @@
   }
 
   async function onRestore() {
+    if (target === null || resBackup === null) {
+      return;
+    }
+
     try {
       await restoreTarget(target.id, resBackup.id);
       const backup_id = resBackup.id;
@@ -139,7 +170,11 @@
       isOkModalOpen = true;
 
     } catch(e) {
-      resError = e;
+      if (e instanceof Error) {
+        resError = e.message;
+      } else {
+        resError = String(e);
+      }
     }
   }
 
@@ -156,7 +191,7 @@
       </div>
 
       <div>
-        <button class="outline secondary" on:click={() => goto('/')}>BACK</button>
+        <button class="outline secondary" onclick={() => goto('/')}>BACK</button>
       </div>
     </div>
 
@@ -172,7 +207,7 @@
       </div>
 
       <div class="field">
-        <button on:click={() => isBackupModalOpen = true}>Take a new backup!</button>
+        <button onclick={() => isBackupModalOpen = true}>Take a new backup!</button>
       </div>
     </div>
 
@@ -193,24 +228,24 @@
           {#each target.backups as backup}
             <tr>
               <td width="36px">
-                <HoverElement>
-                  <span slot="normal">
-                    <Package size={24} color="LimeGreen" />
-                  </span>
-                  <span slot="hover">
-                    <span class="btn-restore" on:click={() => handleRestoreRequest(backup)}>
+                <button class="icon-btn" onclick={() => handleRestoreRequest(backup)}>
+                  <HoverElement>
+                    {#snippet normal()}
+                      <Package size={24} color="LimeGreen" />
+                    {/snippet}
+                    {#snippet hover()}
                       <PackageOpen size={24} color="LimeGreen" />
-                    </span>
-                  </span>
-                </HoverElement>
+                    {/snippet}
+                  </HoverElement>
+                </button>
               </td>
               <td>{backup.id}</td>
               <td>{fmtDateTime(backup.timestamp)}</td>
               <td>{backup.note}</td>
               <td width="36px">
-                <div class="clickable-icon" on:click={() => handleDeleteBackupRequest(backup)}>
+                <button class="icon-btn" onclick={() => handleDeleteBackupRequest(backup)}>
                   <Trash2 color="red" />
-                </div>
+                </button>
               </td>
             </tr>
           {/each}
@@ -224,7 +259,7 @@
     <p>Failed to get target information.</p>
     <p>{error}</p>
 
-    <button on:click={() => goto('/')}>Back</button>
+    <button onclick={() => goto('/')}>Back</button>
   {/if}
 
   <Modal title="Delete?" open={isDeleteModalOpen}>
@@ -246,8 +281,8 @@
     <p class="warn">&#x26a0; This action cannot be undone!!!</p>
 
     <div slot="buttons">
-      <button on:click={onCancelDeleteBackup} class="secondary">Cancel</button>
-      <button on:click={onDeleteBackup} class="btn-delete">DELETE</button>
+      <button onclick={onCancelDeleteBackup} class="secondary">Cancel</button>
+      <button onclick={onDeleteBackup} class="btn-delete">DELETE</button>
     </div>
   </Modal>
 
@@ -263,8 +298,8 @@
     {/if}
 
     <div slot="buttons">
-      <button on:click={onCancelBackup} class="secondary">Cancel</button>
-      <button on:click={onBackup}>BACKUP</button>
+      <button onclick={onCancelBackup} class="secondary">Cancel</button>
+      <button onclick={onBackup}>BACKUP</button>
     </div>
   </Modal>
 
@@ -277,7 +312,9 @@
         <li>Timestamp: {fmtDateTime(resBackup.timestamp)}</li>
       </ul>
       <p>Note:</p>
-      <p class="note">{resBackup.note || "---"}</p>
+      <p class="note">
+        {resBackup.note || "---"}
+      </p>
     {/if}
 
     {#if resError}
@@ -290,8 +327,8 @@
     </ul>
 
     <div slot="buttons">
-      <button on:click={onCancelRestore} class="secondary">Cancel</button>
-      <button on:click={onRestore}>RESTORE</button>
+      <button onclick={onCancelRestore} class="secondary">Cancel</button>
+      <button onclick={onRestore}>RESTORE</button>
     </div>
   </Modal>
 
@@ -299,7 +336,7 @@
     <p>{okModalMessage}</p>
 
     <div slot="buttons">
-      <button on:click={() => isOkModalOpen = false}>OK</button>
+      <button onclick={() => isOkModalOpen = false}>OK</button>
     </div>
   </Modal>
 </main>
@@ -325,6 +362,9 @@
     tr {
       td:nth-child(1) {
         text-align: center;
+        button {
+          display: inline-block;
+        }
       }
       td:nth-child(2) {
         width: 5rem;
@@ -335,9 +375,5 @@
         font-family: monospace;
       }
     }
-  }
-
-  .btn-restore {
-    cursor: pointer;
   }
 </style>
