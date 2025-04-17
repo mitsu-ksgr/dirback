@@ -3,13 +3,14 @@
  !---------------------------------------------------------------------------->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getVersion } from '@tauri-apps/api/app';
   import { goto } from "$app/navigation";
 
   import Github from 'lucide-svelte/icons/github';
   import Moon from 'lucide-svelte/icons/moon';
   import Sun from 'lucide-svelte/icons/sun';
   import BookHeart from 'lucide-svelte/icons/book-heart';
+
+  import { getAppVersion } from '$lib/sys/get-app-version';
 
   const isDev = import.meta.env.DEV;
 
@@ -28,7 +29,7 @@
   }
 
   onMount(async () => {
-    appVersion = await getVersion();
+    appVersion = await getAppVersion();
 
     const theme = localStorage.getItem('theme');
     setupTheme(theme === 'light' ? 'light' : 'dark');

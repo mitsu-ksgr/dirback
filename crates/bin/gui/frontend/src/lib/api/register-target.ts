@@ -3,8 +3,8 @@
  */
 
 import { dispatch } from "./dispatcher";
-import type { Command } from "./types/command";
-import type { Target } from "./types/target";
+import type { Command } from "./dispatcher";
+import type { Target } from "$lib/types/target";
 
 export async function registerTarget(name: string, path: string): Promise<Target> {
   return await dispatch({

@@ -1,5 +1,5 @@
 /**
- * api/types/backup-entry.ts
+ * BackupEntry Type
  *
  * Rust: crates/lib/dirback/src/usecase/dto/backup_entry.rs
  */

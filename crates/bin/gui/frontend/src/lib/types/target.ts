@@ -1,5 +1,5 @@
 /**
- * api/types/target.ts
+ * Target Type
  *
  * Rust: crates/lib/dirback/src/usecase/dto/target.rs
  */

@@ -1,5 +1,5 @@
 /**
- * api/types/timestamp.ts
+ * Timestamp Type
  *
  * Rust: crates/lib/dirback/src/domain/model/target.rs
  */
