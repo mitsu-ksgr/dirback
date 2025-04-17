@@ -10,6 +10,8 @@
   import Package from 'lucide-svelte/icons/package';
   import PackageOpen from 'lucide-svelte/icons/package-open';
 
+  import type { PageProps } from './$types';
+
   import type { BackupEntry } from "$lib/types/backup-entry";
   import type { Target } from "$lib/types/target";
 
@@ -21,8 +23,10 @@
   import HoverElement from "$lib/ui/HoverElement.svelte";
   import Modal from "$lib/ui/Modal.svelte";
 
-  const { data } = $props();
-  const target_id = data.target_id;
+  const { data }: PageProps = $props();
+  const target_id: string = data.target_id;
+
+  console.log(`target/+page.svelte: TargetId = ${target_id}`);
 
   // Target
   let target: Target | null = $state(null);
