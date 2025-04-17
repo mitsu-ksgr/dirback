@@ -5,7 +5,6 @@
 </script>
 
 <footer>
-  <p>footer line</p>
 </footer>
 
 <style lang="scss">
