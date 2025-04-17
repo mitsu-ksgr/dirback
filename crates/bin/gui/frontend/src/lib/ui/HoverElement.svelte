@@ -2,16 +2,18 @@
   Hover Element
  !---------------------------------------------------------------------------->
 <script lang="ts">
+  let { hover, normal } = $props();
   let isHover = $state(false);
 </script>
 
 <span
-  on:mouseenter={() => isHover = true}
-  on:mouseleave={() => isHover = false}
+  role="presentation"
+  onmouseenter={() => isHover = true}
+  onmouseleave={() => isHover = false}
   >
   {#if isHover}
-    <slot name="hover" />
+    {@render hover()}
   {:else}
-    <slot name="normal" />
+    {@render normal()}
   {/if}
 </span>

@@ -7,6 +7,8 @@
 
   import Trash2 from 'lucide-svelte/icons/trash-2';
 
+  import type { Target } from "$lib/types/target";
+
   import { deleteTarget } from "$lib/api/delete-target";
   import { listTargets } from "$lib/api/list-targets";
   import { fmtDateTime } from "$lib/utils/fmt";
@@ -14,14 +16,18 @@
   import Modal from "$lib/ui/Modal.svelte";
 
   // Targets
-  let targets = $state([]);
+  let targets: Target[] = $state([]);
   let error = $state("");
 
   async function fetchTargets() {
     try {
       targets = await listTargets();
     } catch(e) {
-      error = `Error: ${e}`;
+      if (e instanceof Error) {
+        error = e.message;
+      } else {
+        error = String(e);
+      }
     }
   }
 
@@ -32,7 +38,7 @@
 
   // Trash
   let isDeleteModalOpen = $state(false);
-  let delTarget = $state(null);
+  let delTarget: Target | null = $state(null);
   let delConfirmation = $state("");
   let delConfirmError = $state("");
 
@@ -42,7 +48,7 @@
     delConfirmError = "";
   }
 
-  async function handleDeleteRequest(target) {
+  async function handleDeleteRequest(target: Target) {
     delTarget = target;
     isDeleteModalOpen = true;
   }
@@ -53,7 +59,11 @@
   }
 
   async function onConfirmDelete() {
-    if (delConfirmation === delTarget?.name) {
+    if (delTarget === null) {
+      return;
+    }
+
+    if (delConfirmation === delTarget.name) {
       try {
         let target = await deleteTarget(delTarget.id);
 
@@ -69,7 +79,11 @@
         okModalMessage = `The target '${target.name}' has been deleted.`;
         isOkModalOpen = true;
       } catch(e) {
-        delConfirmError = e;
+        if (e instanceof Error) {
+          delConfirmError = e.message;
+        } else {
+          delConfirmError = String(e);
+        }
       }
 
     } else {
@@ -93,7 +107,7 @@
       No backup targets have been registered yet &#x1f440;
     </p>
 
-    <button on:click={() => goto('register-target')}>
+    <button onclick={() => goto('register-target')}>
       &#x1f4c1; Register new target
     </button>
 
@@ -104,7 +118,7 @@
       </div>
 
       <div>
-        <button on:click={() => goto('register-target')}>
+        <button onclick={() => goto('register-target')}>
           Register new target
         </button>
       </div>
@@ -127,18 +141,20 @@
           <tr>
             <td width="36px">
               <HoverElement>
-                <span slot="normal">&#x1f4c1;</span>
-                <span slot="hover">
+                {#snippet normal()}
+                  <span>&#x1f4c1;</span>
+                {/snippet}
+                {#snippet hover()}
                   <a href="/target/{target.id}">
-                    &#x1f4c2;
+                    <span>&#x1f4c2;</span>
                   </a>
-                </span>
+                {/snippet}
               </HoverElement>
             </td>
             <td><a href="/target/{target.id}">{target.name}</a></td>
             <td>
               {#if target.backups.length > 0}
-                {fmtDateTime(target.backups.at(-1).timestamp)}
+                {fmtDateTime(target.backups.at(-1)!.timestamp)}
               {:else}
                 -
               {/if}
@@ -146,9 +162,9 @@
             <td>{target.backups.length}</td>
             <td><code>{target.path}</code></td>
             <td width="36px">
-              <div class="clickable-icon" on:click={() => handleDeleteRequest(target)}>
+              <button class="icon-btn" onclick={() => handleDeleteRequest(target)}>
                 <Trash2 color="red" />
-              </div>
+              </button>
             </td>
           </tr>
         {/each}
@@ -192,8 +208,8 @@
     <p class="warn">&#x26a0; This action cannot be undone!!!</p>
 
     <div slot="buttons">
-      <button on:click={onCancelDelete} class="secondary">Cancel</button>
-      <button on:click={onConfirmDelete} class="btn-delete">DELETE</button>
+      <button onclick={onCancelDelete} class="secondary">Cancel</button>
+      <button onclick={onConfirmDelete} class="btn-delete">DELETE</button>
     </div>
   </Modal>
 
@@ -201,7 +217,7 @@
     <p>{okModalMessage}</p>
 
     <div slot="buttons">
-      <button on:click={() => isOkModalOpen = false}>OK</button>
+      <button onclick={() => isOkModalOpen = false}>OK</button>
     </div>
   </Modal>
 </main>

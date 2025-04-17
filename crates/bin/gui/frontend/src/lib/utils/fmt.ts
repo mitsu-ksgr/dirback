@@ -6,7 +6,7 @@
 
 export function fmtDateTime(timestamp: string): string {
   const dt = new Date(timestamp);
-  if (isNaN(dt)) {
+  if (isNaN(dt.getTime())) {
     return timestamp;
   }
 

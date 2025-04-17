@@ -3,10 +3,10 @@
  */
 
 import { dispatch } from "./dispatcher";
-import type { Command } from "./types/command";
-import type { Target } from "./types/target";
+import type { Command } from "./dispatcher";
+import type { Target } from "$lib/types/target";
 
-export async function restoreTarget(target_id: string, backup_id: int): Promise<Target | null> {
+export async function restoreTarget(target_id: string, backup_id: number): Promise<null> {
   return await dispatch({
     type: "RestoreTarget",
     payload: {
