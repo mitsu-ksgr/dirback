@@ -5,7 +5,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
 import { IS_MOCK } from "../config";
-import type { Command } from "./command";
 import { mockDispatch } from "./mock/dispatcher";
 
 export type Command =
@@ -14,7 +13,7 @@ export type Command =
   | { type: "DeleteTarget"; payload: { target_id: string } }
   | { type: "GetTarget"; payload: { target_id: string } }
   | { type: "ListTargets"; payload: {} }
-  | { type: "RegisterTarget"; paylod: { name: string, path: string } }
+  | { type: "RegisterTarget"; payload: { name: string, path: string } }
   | { type: "RestoreTarget"; payload: { target_id: string, backup_id: number } }
 ;
 

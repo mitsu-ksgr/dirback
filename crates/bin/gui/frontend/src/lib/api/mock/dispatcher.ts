@@ -31,9 +31,6 @@ export async function mockDispatch<T>(cmd: Command): Promise<T> {
     case "RestoreTarget":
       restoreTarget(cmd.payload.target_id, cmd.payload.backup_id);
       return null as T;
-
-    default:
-      throw new Error(`Unknown command: ${cmd.type}`);
   }
 }
 

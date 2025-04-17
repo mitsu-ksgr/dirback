@@ -4,7 +4,7 @@
  * Rust: crates/lib/dirback/src/usecase/dto/target.rs
  */
 
-import { BackupEntry } from "./backup-entry";
+import type { BackupEntry } from "./backup-entry";
 
 export interface Target {
     id: string;
