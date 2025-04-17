@@ -3,8 +3,8 @@
  */
 import type { PageLoad } from './$types';
 
-export function load({ url }): PageLoad {
-  const target_id = url.searchParams.get('target_id');
+export const load: PageLoad = ({ url }) => {
+  const target_id: string | null = url.searchParams.get('target_id');
 
   if (target_id === null) {
     throw new Error('target_id is required');
