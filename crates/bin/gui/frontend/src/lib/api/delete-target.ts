@@ -3,7 +3,6 @@
  */
 
 import { dispatch } from "./dispatcher";
-import type { Command } from "./dispatcher";
 import type { Target } from "$lib/types/target";
 
 export async function deleteTarget(target_id: string): Promise<Target> {
