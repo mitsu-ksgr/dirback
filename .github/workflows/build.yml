@@ -58,10 +58,9 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
       - name: Cache node_modules
-        working-directory: ./crates/bin/gui/frontend
         uses: actions/cache@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          path: crates/bin/gui/frontend/${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}-yarn-
