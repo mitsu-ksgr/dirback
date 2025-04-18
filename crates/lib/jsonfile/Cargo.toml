@@ -1,7 +1,11 @@
 [package]
 name = "jsonfile"
-version = "0.1.0"
+version = "1.0.0"
+description = "A minimal json file reader/writer for dirback"
 edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }

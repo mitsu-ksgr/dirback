@@ -1,8 +1,11 @@
 [package]
 name = "dirback_gui"
-version = "0.1.0"
-description = "GUI for the dirback"
+version = "1.0.0"
+description = "Dirback GUI"
 edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [lib]
 # The `_lib` suffix may seem redundant but it is necessary

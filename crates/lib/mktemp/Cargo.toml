@@ -1,7 +1,11 @@
 [package]
 name = "mktemp"
-version = "0.1.0"
+version = "1.0.0"
+description = "A minimal mktemp implementation for dirback"
 edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 uuid = { workspace = true }
