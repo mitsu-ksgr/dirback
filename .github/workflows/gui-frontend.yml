@@ -49,17 +49,17 @@ jobs:
       # yarn
       #
       - name: Install dependencies
-        runs: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
       - name: Run build
-        runs: yarn build
+        run: yarn build
 
       #
       # Build, lint, format
       #
       - name: Svelte check
-        runs: yarn run check
+        run: yarn run check
       - name: Linter
-        runs: yarn run oxlint
+        run: yarn run oxlint
       - name: Formatter
-        runs: yarn run prettier --check .
+        run: yarn run prettier --check .
 
