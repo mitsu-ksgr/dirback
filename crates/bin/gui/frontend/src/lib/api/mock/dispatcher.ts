@@ -34,7 +34,6 @@ export async function mockDispatch<T>(cmd: Command): Promise<T> {
   }
 }
 
-
 //-----------------------------------------------------------------------------
 // Mock APIs
 //-----------------------------------------------------------------------------
@@ -68,7 +67,7 @@ function deleteBackup(target_id: string, backup_id: number): BackupEntry {
     throw new Error(`Target not found: '${target_id}'`);
   }
 
-  const idx = target.backups.findIndex(be => be.id === backup_id);
+  const idx = target.backups.findIndex((be) => be.id === backup_id);
   if (idx === -1) {
     throw new Error(`Backup not found: '${backup_id}'`);
   }
@@ -78,7 +77,7 @@ function deleteBackup(target_id: string, backup_id: number): BackupEntry {
 }
 
 function deleteTarget(target_id: string): Target {
-  const idx = mockTargets.findIndex(t => t.id === target_id);
+  const idx = mockTargets.findIndex((t) => t.id === target_id);
   if (idx === -1) {
     throw new Error(`Target not found: '${target_id}'`);
   }
@@ -99,7 +98,7 @@ function registerTarget(name: string, path: string): Target {
   const backups: BackupEntry[] = [];
   const id = crypto.randomUUID();
 
-  const target: Target = {id, name, path, backups};
+  const target: Target = { id, name, path, backups };
   mockTargets.push(target);
 
   return target;
@@ -111,7 +110,7 @@ function restoreTarget(target_id: string, backup_id: number) {
     throw new Error(`Target not found: '${target_id}'`);
   }
 
-  const idx = target.backups.findIndex(be => be.id === backup_id);
+  const idx = target.backups.findIndex((be) => be.id === backup_id);
   if (idx === -1) {
     throw new Error(`Backup not found: '${backup_id}'`);
   }
@@ -120,4 +119,3 @@ function restoreTarget(target_id: string, backup_id: number) {
 
   return;
 }
-

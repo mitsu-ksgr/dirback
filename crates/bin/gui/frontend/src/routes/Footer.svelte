@@ -4,8 +4,7 @@
 <script lang="ts">
 </script>
 
-<footer>
-</footer>
+<footer></footer>
 
 <style lang="scss">
 </style>

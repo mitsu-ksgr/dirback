@@ -10,7 +10,7 @@ export function fmtDateTime(timestamp: string): string {
     return timestamp;
   }
 
-  const pad = (n: number) => n.toString().padStart(2, '0');
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
   const year = dt.getFullYear();
   const mon = pad(dt.getMonth() + 1); // 0-indexed

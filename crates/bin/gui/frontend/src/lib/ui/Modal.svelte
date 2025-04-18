@@ -11,7 +11,7 @@
   let dialog: HTMLDialogElement;
 
   function handleBackgroundOnClick(event: MouseEvent) {
-    if ((event.target as HTMLElement).closest('article')) return;
+    if ((event.target as HTMLElement).closest("article")) return;
     onClickOutside();
   }
 

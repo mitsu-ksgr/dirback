@@ -8,9 +8,9 @@
 
 <span
   role="presentation"
-  onmouseenter={() => isHover = true}
-  onmouseleave={() => isHover = false}
-  >
+  onmouseenter={() => (isHover = true)}
+  onmouseleave={() => (isHover = false)}
+>
   {#if isHover}
     {@render hover()}
   {:else}

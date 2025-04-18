@@ -7,8 +7,8 @@
 import type { Timestamp } from "./timestamp";
 
 export interface BackupEntry {
-    id: number;
-    path: String;
-    timestamp: Timestamp;
-    note: String;
+  id: number;
+  path: string;
+  timestamp: Timestamp;
+  note: string;
 }

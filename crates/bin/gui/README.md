@@ -75,6 +75,43 @@ change `"beforeDevCommand"` in `tauri.conf.json` as following:
 and run `yarn tauri dev` instead `cargo tauri dev`.
 
 
+## Front-end Development
+### Tech stack
+- Package manager: [yarn](https://yarnpkg.com/)
+- Build tool: [Vite](https://vite.dev/)
+- Language: TypeScript
+- Framework: [Svelte5](https://svelte.dev/)
+- CSS Framework: [Pico CSS](https://picocss.com/)
+- Tools
+  - Linter: [Oxc: oxlint](https://oxc.rs/docs/guide/usage/linter)
+  - Formatter: [Prettier](https://prettier.io/)
+
+```
+% docker-compose run --rm app /bin/bash
+
+# svelte-check
+/app$ yarn run check
+
+# linter: oxlint
+/app$ yarn oxlint
+
+# formatter: prettier
+/app$ yarn prettier --write .
+```
+
+### Without tauri app
+Develop the front-end without connecting the Tauri app (Rust side).
+
+Create `.env` file and set `VITE_USE_MOCK_DISPATCHER=true`.
+
+```
+% cd crates/bin/gui/frontend
+% cp .env.example .env
+```
+
+If you want to run release build, create `.env.production`.
+
+
 ## Icon
 - Icon source ... `./icon-src`
 
@@ -93,8 +130,6 @@ Remove Android/iOS icons.
 % rm -rf icons/android
 % rm -rf icons/ios
 ```
-
-
 
 
 
