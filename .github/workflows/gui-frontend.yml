@@ -43,7 +43,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}-yarn-
-        working-directory: crates
+        working-directory: crates/bin/gui/frontend
 
       #
       # yarn
