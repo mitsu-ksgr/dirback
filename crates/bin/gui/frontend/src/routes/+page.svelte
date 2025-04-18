@@ -2,10 +2,10 @@
   Top page
  !---------------------------------------------------------------------------->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  import Trash2 from 'lucide-svelte/icons/trash-2';
+  import Trash2 from "lucide-svelte/icons/trash-2";
 
   import type { Target } from "$lib/types/target";
 
@@ -22,7 +22,7 @@
   async function fetchTargets() {
     try {
       targets = await listTargets();
-    } catch(e) {
+    } catch (e) {
       if (e instanceof Error) {
         error = e.message;
       } else {
@@ -78,14 +78,13 @@
         okModalTitle = "Deletion completed!";
         okModalMessage = `The target '${target.name}' has been deleted.`;
         isOkModalOpen = true;
-      } catch(e) {
+      } catch (e) {
         if (e instanceof Error) {
           delConfirmError = e.message;
         } else {
           delConfirmError = String(e);
         }
       }
-
     } else {
       delConfirmError = "Cofirmation failed. Please check again.";
     }
@@ -103,14 +102,11 @@
       <p>Simple directory-based backup tool.</p>
     </hgroup>
 
-    <p>
-      No backup targets have been registered yet &#x1f440;
-    </p>
+    <p>No backup targets have been registered yet &#x1f440;</p>
 
-    <button onclick={() => goto('register-target')}>
+    <button onclick={() => goto("register-target")}>
       &#x1f4c1; Register new target
     </button>
-
   {:else}
     <div class="header">
       <div>
@@ -118,7 +114,7 @@
       </div>
 
       <div>
-        <button onclick={() => goto('register-target')}>
+        <button onclick={() => goto("register-target")}>
           Register new target
         </button>
       </div>
@@ -151,7 +147,8 @@
                 {/snippet}
               </HoverElement>
             </td>
-            <td><a href={`/target?target_id=${target.id}`}>{target.name}</a></td>
+            <td><a href={`/target?target_id=${target.id}`}>{target.name}</a></td
+            >
             <td>
               {#if target.backups.length > 0}
                 {fmtDateTime(target.backups.at(-1)!.timestamp)}
@@ -162,7 +159,10 @@
             <td>{target.backups.length}</td>
             <td><code>{target.path}</code></td>
             <td width="36px">
-              <button class="icon-btn" onclick={() => handleDeleteRequest(target)}>
+              <button
+                class="icon-btn"
+                onclick={() => handleDeleteRequest(target)}
+              >
                 <Trash2 color="red" />
               </button>
             </td>
@@ -196,13 +196,15 @@
 
       <p>The backups will also be deleted.</p>
 
-      <label for="confirm">Type the name of the target to confirm: <code>{delTarget.name}</code></label>
+      <label for="confirm"
+        >Type the name of the target to confirm: <code>{delTarget.name}</code
+        ></label
+      >
       <input id="confirm" bind:value={delConfirmation} />
 
       {#if delConfirmError}
         <p class="error">{delConfirmError}</p>
       {/if}
-
     {/if}
 
     <p class="warn">&#x26a0; This action cannot be undone!!!</p>
@@ -213,11 +215,15 @@
     </div>
   </Modal>
 
-  <Modal title={okModalTitle} open={isOkModalOpen} onClickOutside={() => isOkModalOpen = false}>
+  <Modal
+    title={okModalTitle}
+    open={isOkModalOpen}
+    onClickOutside={() => (isOkModalOpen = false)}
+  >
     <p>{okModalMessage}</p>
 
     <div slot="buttons">
-      <button onclick={() => isOkModalOpen = false}>OK</button>
+      <button onclick={() => (isOkModalOpen = false)}>OK</button>
     </div>
   </Modal>
 </main>

@@ -2,15 +2,15 @@
   Target page
  !---------------------------------------------------------------------------->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { open } from "@tauri-apps/plugin-dialog";
 
-  import Trash2 from 'lucide-svelte/icons/trash-2';
-  import Package from 'lucide-svelte/icons/package';
-  import PackageOpen from 'lucide-svelte/icons/package-open';
+  import Trash2 from "lucide-svelte/icons/trash-2";
+  import Package from "lucide-svelte/icons/package";
+  import PackageOpen from "lucide-svelte/icons/package-open";
 
-  import type { PageProps } from './$types';
+  import type { PageProps } from "./$types";
 
   import type { BackupEntry } from "$lib/types/backup-entry";
   import type { Target } from "$lib/types/target";
@@ -35,7 +35,7 @@
   async function fetchTarget() {
     try {
       target = await getTarget(target_id);
-    } catch(e) {
+    } catch (e) {
       if (e instanceof Error) {
         error = e.message;
       } else {
@@ -85,7 +85,6 @@
       okModalTitle = "Deletion completed!";
       okModalMessage = `The backup[${backup.id}] has been deleted.`;
       isOkModalOpen = true;
-
     } catch (e) {
       if (e instanceof Error) {
         delError = e.message;
@@ -123,13 +122,13 @@
       // Setup OK modal.
       okModalTitle = "Back up successful!!";
       if (backup === undefined) {
-        okModalMessage = "The backup was successful, but the latest backup information could not be obtained.";
+        okModalMessage =
+          "The backup was successful, but the latest backup information could not be obtained.";
       } else {
         okModalMessage = `A new backup[${backup.id}] has been created.`;
       }
       isOkModalOpen = true;
-
-    } catch(e) {
+    } catch (e) {
       if (e instanceof Error) {
         backupError = e.message;
       } else {
@@ -172,8 +171,7 @@
       okModalTitle = "Restore completed!!";
       okModalMessage = `The target contents have been restored with the backup[${backup_id}].`;
       isOkModalOpen = true;
-
-    } catch(e) {
+    } catch (e) {
       if (e instanceof Error) {
         resError = e.message;
       } else {
@@ -195,7 +193,8 @@
       </div>
 
       <div>
-        <button class="outline secondary" onclick={() => goto('/')}>BACK</button>
+        <button class="outline secondary" onclick={() => goto("/")}>BACK</button
+        >
       </div>
     </div>
 
@@ -211,7 +210,9 @@
       </div>
 
       <div class="field">
-        <button onclick={() => isBackupModalOpen = true}>Take a new backup!</button>
+        <button onclick={() => (isBackupModalOpen = true)}
+          >Take a new backup!</button
+        >
       </div>
     </div>
 
@@ -232,7 +233,10 @@
           {#each target.backups as backup}
             <tr>
               <td width="36px">
-                <button class="icon-btn" onclick={() => handleRestoreRequest(backup)}>
+                <button
+                  class="icon-btn"
+                  onclick={() => handleRestoreRequest(backup)}
+                >
                   <HoverElement>
                     {#snippet normal()}
                       <Package size={24} color="LimeGreen" />
@@ -247,7 +251,10 @@
               <td>{fmtDateTime(backup.timestamp)}</td>
               <td>{backup.note}</td>
               <td width="36px">
-                <button class="icon-btn" onclick={() => handleDeleteBackupRequest(backup)}>
+                <button
+                  class="icon-btn"
+                  onclick={() => handleDeleteBackupRequest(backup)}
+                >
                   <Trash2 color="red" />
                 </button>
               </td>
@@ -256,14 +263,13 @@
         </tbody>
       </table>
     {/if}
-
   {:else}
     <h3>Target not found.</h3>
 
     <p>Failed to get target information.</p>
     <p>{error}</p>
 
-    <button onclick={() => goto('/')}>Back</button>
+    <button onclick={() => goto("/")}>Back</button>
   {/if}
 
   <Modal title="Delete?" open={isDeleteModalOpen}>
@@ -294,8 +300,7 @@
     <p>Create a new backup.</p>
 
     <label for="note">Note:</label>
-    <textarea name="note" placeholder="..." bind:value={backupNote}>
-    </textarea>
+    <textarea name="note" placeholder="..." bind:value={backupNote}> </textarea>
 
     {#if backupError}
       <p class="error">{backupError}</p>
@@ -336,11 +341,15 @@
     </div>
   </Modal>
 
-  <Modal title={okModalTitle} open={isOkModalOpen} onClickOutside={() => isOkModalOpen = false}>
+  <Modal
+    title={okModalTitle}
+    open={isOkModalOpen}
+    onClickOutside={() => (isOkModalOpen = false)}
+  >
     <p>{okModalMessage}</p>
 
     <div slot="buttons">
-      <button onclick={() => isOkModalOpen = false}>OK</button>
+      <button onclick={() => (isOkModalOpen = false)}>OK</button>
     </div>
   </Modal>
 </main>

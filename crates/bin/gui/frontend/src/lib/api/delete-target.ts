@@ -13,4 +13,3 @@ export async function deleteTarget(target_id: string): Promise<Target> {
     },
   });
 }
-

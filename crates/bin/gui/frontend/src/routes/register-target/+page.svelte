@@ -2,7 +2,7 @@
   Register target page
  !---------------------------------------------------------------------------->
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { open } from "@tauri-apps/plugin-dialog";
 
@@ -25,7 +25,7 @@
       multiple: false,
     });
 
-    if (typeof selected === 'string') {
+    if (typeof selected === "string") {
       path = selected;
     }
   }
@@ -36,8 +36,7 @@
       targetName = target.name;
       targetPath = target.path;
       showDialog = true;
-
-    } catch(e) {
+    } catch (e) {
       if (e instanceof Error) {
         error = e.message;
       } else {
@@ -48,7 +47,7 @@
 
   function handleOk() {
     showDialog = false;
-    goto('/');
+    goto("/");
   }
 
   onMount(async () => {
@@ -76,15 +75,12 @@
     {/if}
 
     <div class="grid">
-      <button onclick={() => goto('/')} class="secondary">Cancel</button>
+      <button onclick={() => goto("/")} class="secondary">Cancel</button>
       <button onclick={onSubmit}>Register</button>
     </div>
   </form>
 
-  <Modal
-    title="Registration complete!!"
-    open={showDialog}
-    >
+  <Modal title="Registration complete!!" open={showDialog}>
     <p>A new target has been registered!</p>
 
     <ul>
@@ -103,7 +99,7 @@
     display: flex;
     align-items: left;
     gap: 0.5rem;
-    margin-bottom: 1.0rem;
+    margin-bottom: 1rem;
 
     button {
       white-space: nowrap;

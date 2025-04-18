@@ -30,7 +30,8 @@
     flex-direction: column;
     height: 100vh;
 
-    .header, .footer {
+    .header,
+    .footer {
       flex-shrink: 0;
       background: var(--pico-background-color);
       padding: 1rem;

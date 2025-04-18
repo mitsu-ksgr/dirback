@@ -5,7 +5,10 @@
 import { dispatch } from "./dispatcher";
 import type { Target } from "$lib/types/target";
 
-export async function registerTarget(name: string, path: string): Promise<Target> {
+export async function registerTarget(
+  name: string,
+  path: string,
+): Promise<Target> {
   return await dispatch({
     type: "RegisterTarget",
     payload: {
@@ -14,4 +17,3 @@ export async function registerTarget(name: string, path: string): Promise<Target
     },
   });
 }
-

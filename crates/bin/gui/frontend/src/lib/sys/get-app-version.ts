@@ -3,7 +3,7 @@
  */
 
 import { IS_MOCK } from "../config";
-import { getVersion } from '@tauri-apps/api/app';
+import { getVersion } from "@tauri-apps/api/app";
 
 export async function getAppVersion(): Promise<string> {
   if (IS_MOCK) {

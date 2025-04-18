@@ -7,7 +7,7 @@ import type { BackupEntry } from "$lib/types/backup-entry";
 const DIRBACK_BASE_PATH = `/tmp/dirback/.data/`;
 
 function zfill(n: number, digit: number = 2): string {
-  return n.toString().padStart(digit, '0');
+  return n.toString().padStart(digit, "0");
 }
 
 function randInt(min: number, max: number): number {
@@ -26,13 +26,13 @@ function makeTimestamps(msec: number): [string, string] {
   const mm = zfill(t.getUTCMinutes());
   const ss = zfill(t.getUTCSeconds());
 
-  return [
-    `${y}${m}${d}T${hh}${mm}${ss}Z`,
-    t.toISOString(),
-  ];
+  return [`${y}${m}${d}T${hh}${mm}${ss}Z`, t.toISOString()];
 }
 
-export function generateNewMockBackup(target: Target, note: string): BackupEntry {
+export function generateNewMockBackup(
+  target: Target,
+  note: string,
+): BackupEntry {
   const prev = target.backups.at(-1);
 
   const id = prev === undefined ? 1 : prev.id + 1;
@@ -49,7 +49,7 @@ export function generateNewMockBackup(target: Target, note: string): BackupEntry
 
 export function generateMockTargets(): Target[] {
   const now = Date.now();
-  const timerange = [now - (365 * 24 * 60 * 60 * 1000), now];
+  const timerange = [now - 365 * 24 * 60 * 60 * 1000, now];
 
   let targets: Target[] = [];
 
@@ -88,4 +88,3 @@ export function generateMockTargets(): Target[] {
 
   return targets;
 }
-
