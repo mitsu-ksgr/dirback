@@ -1,5 +1,5 @@
 [toolchain]
 channel = "1.85.0"
-components = ["rust-src", "rustfmt", "clippy", "rust-analyzer"]
+components = ["rust-src", "rustfmt", "clippy", "rust-analyzer", "tauri-cli"]
 profile = "default"
 targets = []
