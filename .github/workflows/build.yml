@@ -28,7 +28,7 @@ jobs:
           libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 
       - name: Install tauri-cli
-        run: cargo install tauri-cli --no-default-features --features cli
+        run: cargo install tauri-cli
 
       - name: Setup node
         uses: actions/setup-node@v4
