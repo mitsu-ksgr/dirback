@@ -1,13 +1,17 @@
-dirback
-=======
+<div align="center">
+  <img src="./crates/bin/gui/icons/128x128.png" alt="dirback logo" width="128" />
+  <h1>Dirback</h1>
+  <h3>Simple directory-based backup tool.</h3>
 
-dirback is a simple directory-based backup tool.
+  ![Badge Workflow](https://github.com/mitsu-ksgr/dirback/actions/workflows/rust.yml/badge.svg)
+  ![Badge Workflow](https://github.com/mitsu-ksgr/dirback/actions/workflows/gui-frontend.yml/badge.svg)
+</div>
 
-Back up the target directory with targ.gz.
 
-It can back up the target directory as a `tar.gz`.
+Dirback is a simple directory-based backup tool.
+
+Back up the target directory as a `tar.gz` file.
 it also allows for easy restoration from the backup.
-
 
 ## Applications
 - [Command line tool](./crates/bin/cmd/README.md)
