@@ -26,8 +26,6 @@
   const { data }: PageProps = $props();
   const target_id: string = data.target_id;
 
-  console.log(`target/+page.svelte: TargetId = ${target_id}`);
-
   // Target
   let target: Target | null = $state(null);
   let error = $state("");

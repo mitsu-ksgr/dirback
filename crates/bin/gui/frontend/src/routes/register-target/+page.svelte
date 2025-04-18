@@ -2,7 +2,6 @@
   Register target page
  !---------------------------------------------------------------------------->
 <script lang="ts">
-  import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { open } from "@tauri-apps/plugin-dialog";
 
@@ -49,10 +48,6 @@
     showDialog = false;
     goto("/");
   }
-
-  onMount(async () => {
-    console.log("onMount!");
-  });
 </script>
 
 <main>
