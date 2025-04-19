@@ -98,9 +98,9 @@ jobs:
 
           cd dist
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            7z a ../release-${{ runner.os }}.zip *
+            7z a ../dirback-${{ github.ref_name }}-${{ runner.os }}.zip *
           else
-            tar czf ../release-${{ runner.os }}.tar.gz *
+            tar czf ../dirback-${{ github.ref_name }}-${{ runner.os }}.tar.gz *
           fi
 
       - name: Upload artifacts
