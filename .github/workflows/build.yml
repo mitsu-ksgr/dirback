@@ -1,0 +1,145 @@
+name: Publish
+
+on:
+  create:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest]
+        node-version: [23.x]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      #
+      # Cache
+      # https://github.com/actions/cache/blob/main/examples.md#rust---cargo
+      #
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      #
+      # Cache node_modules
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      #
+      - name: Get yarn cache directory path
+        working-directory: ./crates/bin/gui/frontend
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: crates/bin/gui/frontend/${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-yarn-
+
+      #
+      # Tauri dependencies
+      #
+      - name: Install dependencies for Tauri (Ubuntu)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+          libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Install tauri-cli
+        run: cargo install tauri-cli
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies for Frone-end
+        run: yarn install
+        working-directory: ./crates/bin/gui/frontend
+
+      #
+      # Build
+      #
+      - name: Build cli tools
+        run: cargo build --release --bin cmd --bin dirback_tui
+
+      - name: Build the GUI app
+        working-directory: ./crates/bin/gui
+        run: cargo tauri build
+
+      #
+      # Package
+      #
+      - name: Package
+        shell: bash
+        run: |
+          mkdir dist
+
+          EXT=""
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            EXT=".exe"
+          fi
+
+          cp "target/release/cmd${EXT}" "dist/cmd${EXT}"
+          cp "target/release/dirback_tui${EXT}" "dist/dirback_tui${EXT}"
+          cp "target/release/dirback_gui${EXT}" "dist/dirback_gui${EXT}"
+
+          cd dist
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            7z a ../release-${{ runner.os }}.zip *
+          else
+            tar czf ../release-${{ runner.os }}.tar.gz *
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: ./release-*
+
+
+  #
+  # gh release create
+  #
+  release:
+    permissions:
+      contents: write
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      - name: Show contents
+        run: ls -R ./artifacts
+
+      - name: Check GitHub CLI authentication status
+        run: gh auth status
+
+      #
+      # gh release create
+      # https://cli.github.com/manual/gh_release_create
+      #
+      - name: Create release
+        run: |
+          FILES=$(find ./artifacts -type f -name "*.zip" -o -name "*.tar.gz")
+          gh release create "${{ github.ref_name }}" ${FILES} \
+              --title "${{ github.ref_name }}" \
+              --notes "Release ${{ github.ref_name }}"
+

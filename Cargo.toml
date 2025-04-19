@@ -4,6 +4,12 @@ resolver = "2"
 
 [workspace.package]
 edition = "2024"
+rust-version = "1.85.0"
+authors = ["mitsu-ksgr"]
+repository = "https://github.com/mitsu-ksgr/dirback"
+license = "MIT"
+license-file = "LISENCE"
+description = "simple directory-based backup tools."
 
 [workspace.dependencies]
 dirback = { path = "crates/lib/dirback" }
