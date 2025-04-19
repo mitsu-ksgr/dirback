@@ -14,14 +14,28 @@ Dirback is a simple directory-based backup tool.
 Back up the target directory as a `tar.gz` file.
 it also allows for easy restoration from the backup.
 
-## Applications
+
+## Apps
+Dirback provides the following applications:
+
 - [Command line tool](./crates/bin/cmd/README.md)
 - [TUI](./crates/bin/tui/README.md)
 - [GUI](./crates/bin/gui/README.md)
 
+### Supported platforms
+- [x] Linux
+- [x] Windows
+- [ ] macOS
+
 
 ## Application data path
-- Linux: `~/.local/share/dirback`
-- Windows: `TODO`
+Backup files will be stored in the following path:
 
+- Linux: `~/.local/share/dirback`
+- Windows: `%APPDATA%\dirback`
+  - `C:\Users\USER_NAME\AppData\Roaming\dirback`
+
+
+## License
+[MIT](./LICENSE)
 
