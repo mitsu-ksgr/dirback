@@ -9,7 +9,8 @@ if environment variable `DIRBACK_STORE_DIR` is set, use it's path.
 if not set, use default directory.
 
 - Linux: `~/.local/share/dirback`
-- Windows: TODO
+- Windows: `%APPDATA%\dirback`
+  - `C:\Users\USER_NAME\AppData\Roaming\dirback`
 
 
 ## Commands

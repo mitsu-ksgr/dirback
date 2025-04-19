@@ -22,6 +22,8 @@ Dirback provides the following applications:
 - [TUI](./crates/bin/tui/README.md)
 - [GUI](./crates/bin/gui/README.md)
 
+The latest version can be downloaded from [the release page](https://github.com/mitsu-ksgr/dirback/releases).
+
 ### Supported platforms
 - [x] Linux
 - [x] Windows

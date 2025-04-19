@@ -10,8 +10,8 @@ This application is implemented mainly using the following frameworks.
 
 
 ## Support platforms
-- [ ] Linux (X11)
-- [ ] Windows 10~
+- [x] Linux
+- [x] Windows 10~
 - [ ] macOS
 
 
