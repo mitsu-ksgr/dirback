@@ -110,11 +110,16 @@ jobs:
           path: ./release-*
 
 
+  #
+  # gh release create
+  #
   release:
     permissions:
       contents: write
     needs: build
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -126,9 +131,11 @@ jobs:
       - name: Check GitHub CLI authentication status
         run: gh auth status
 
+      #
+      # gh release create
+      # https://cli.github.com/manual/gh_release_create
+      #
       - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           FILES=$(find ./artifacts -type f -name "*.zip" -o -name "*.tar.gz")
           gh release create "${{ github.ref_name }}" $FILES \
