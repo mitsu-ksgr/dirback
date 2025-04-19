@@ -3,6 +3,7 @@
   <h1>Dirback</h1>
   <h3>Simple directory-based backup tool.</h3>
 
+  ![Badge Workflow](https://github.com/mitsu-ksgr/dirback/actions/workflows/release.yml/badge.svg)
   ![Badge Workflow](https://github.com/mitsu-ksgr/dirback/actions/workflows/rust.yml/badge.svg)
   ![Badge Workflow](https://github.com/mitsu-ksgr/dirback/actions/workflows/gui-frontend.yml/badge.svg)
 </div>
