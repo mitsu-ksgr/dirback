@@ -1,4 +1,4 @@
-name: gui-frontend
+name: GUI:Front-end:tests
 
 on:
   push:
