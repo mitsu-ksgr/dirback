@@ -9,8 +9,8 @@ use dirback::usecase::restore::RestoreUsecase;
 
 pub struct RestoreTarget;
 
-impl cmd::Command for RestoreTarget {
-    fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
+impl dirback_cmd::Command for RestoreTarget {
+    fn execute(&self, params: &dirback_cmd::CmdParams) -> anyhow::Result<()> {
         if params.args.len() < 2 {
             anyhow::bail!("Missing args: <target-id> <backup-id>");
         }
@@ -39,10 +39,10 @@ impl cmd::Command for RestoreTarget {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cmd::*;
     use dirback::infra::service::targz_backup_service::TargzBackupService;
     use dirback::internal::TargetRepository;
     use dirback::usecase::backup::BackupUsecase;
+    use dirback_cmd::*;
     use std::io::{Read, Write};
 
     fn prepare_test_files(temp: &mktemp::TempDir) -> std::path::PathBuf {

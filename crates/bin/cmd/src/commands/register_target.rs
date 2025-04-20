@@ -7,8 +7,8 @@ use dirback::usecase::register_target::RegisterTargetUsecase;
 
 pub struct RegisterTarget;
 
-impl cmd::Command for RegisterTarget {
-    fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
+impl dirback_cmd::Command for RegisterTarget {
+    fn execute(&self, params: &dirback_cmd::CmdParams) -> anyhow::Result<()> {
         if params.args.len() < 2 {
             anyhow::bail!("Missing args: <name> <path>");
         }
@@ -39,9 +39,9 @@ impl cmd::Command for RegisterTarget {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cmd::*;
     use dirback::infra::repository::file_storage::FileStorageTargetRepository;
     use dirback::internal::TargetRepository;
+    use dirback_cmd::*;
 
     #[test]
     fn it_works() {
