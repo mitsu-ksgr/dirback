@@ -7,8 +7,8 @@ use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 
 pub struct ListTargets;
 
-impl cmd::Command for ListTargets {
-    fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
+impl dirback_cmd::Command for ListTargets {
+    fn execute(&self, params: &dirback_cmd::CmdParams) -> anyhow::Result<()> {
         let repo = FileStorageTargetRepository::new(&params.basedir);
 
         let list_targets = ListTargetsAdapter::new(&repo);

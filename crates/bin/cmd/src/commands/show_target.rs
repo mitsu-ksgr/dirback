@@ -7,8 +7,8 @@ use dirback::infra::repository::file_storage::FileStorageTargetRepository;
 
 pub struct ShowTarget;
 
-impl cmd::Command for ShowTarget {
-    fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
+impl dirback_cmd::Command for ShowTarget {
+    fn execute(&self, params: &dirback_cmd::CmdParams) -> anyhow::Result<()> {
         if params.args.is_empty() {
             anyhow::bail!("Missing args: <target_id>");
         }
@@ -48,9 +48,9 @@ impl cmd::Command for ShowTarget {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cmd::*;
     use dirback::infra::repository::file_storage::FileStorageTargetRepository;
     use dirback::internal::TargetRepository;
+    use dirback_cmd::*;
 
     #[test]
     fn it_works() {

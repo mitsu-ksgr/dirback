@@ -67,7 +67,7 @@ fn main() {
         std::process::exit(1);
     });
 
-    let params = cmd::CmdParams::build(&args, &basedir).unwrap_or_else(|e| {
+    let params = dirback_cmd::CmdParams::build(&args, &basedir).unwrap_or_else(|e| {
         eprintln!("Error: {e}");
         usage();
         std::process::exit(1);
@@ -78,7 +78,7 @@ fn main() {
         std::process::exit(0);
     }
 
-    let mut invoker = cmd::CommandInvoker::new();
+    let mut invoker = dirback_cmd::CommandInvoker::new();
     invoker.register("list", Box::new(commands::ListTargets));
     invoker.register("register", Box::new(commands::RegisterTarget));
     invoker.register("show", Box::new(commands::ShowTarget));

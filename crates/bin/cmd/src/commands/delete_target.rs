@@ -22,8 +22,8 @@ impl DeleteTarget {
     }
 }
 
-impl cmd::Command for DeleteTarget {
-    fn execute(&self, params: &cmd::CmdParams) -> anyhow::Result<()> {
+impl dirback_cmd::Command for DeleteTarget {
+    fn execute(&self, params: &dirback_cmd::CmdParams) -> anyhow::Result<()> {
         if params.args.is_empty() {
             anyhow::bail!("Missing args: <target-id>");
         }
@@ -84,9 +84,9 @@ impl cmd::Command for DeleteTarget {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cmd::*;
     use dirback::infra::repository::file_storage::FileStorageTargetRepository;
     use dirback::internal::TargetRepository;
+    use dirback_cmd::*;
 
     fn prepare_test_data(temp: &mktemp::TempDir) -> Vec<String> {
         let mut repo = FileStorageTargetRepository::new(&temp.path());

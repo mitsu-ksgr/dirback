@@ -1,5 +1,5 @@
 [package]
-name = "cmd"
+name = "dirback_cmd"
 version = "1.0.0"
 description = "Dirback commands"
 edition.workspace = true
