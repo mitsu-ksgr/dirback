@@ -1,7 +1,7 @@
 [package]
 name = "dirback_gui"
-version = "1.0.0"
 description = "Dirback GUI"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 repository.workspace = true
