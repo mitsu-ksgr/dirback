@@ -70,7 +70,9 @@
     {/if}
 
     <div class="grid">
-      <button onclick={() => goto("/")} class="secondary">Cancel</button>
+      <button type="button" onclick={() => goto("/")} class="secondary"
+        >Cancel</button
+      >
       <button onclick={onSubmit}>Register</button>
     </div>
   </form>

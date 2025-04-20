@@ -5,8 +5,8 @@
  */
 
 /**
-  * @type {import("prettier").Config}
-  */
+ * @type {import("prettier").Config}
+ */
 const config = {
   plugins: ["prettier-plugin-svelte"],
   semi: true,
