@@ -73,7 +73,7 @@ jobs:
       # Build
       #
       - name: Build cli tools
-        run: cargo build --release --bin cmd --bin dirback_tui
+        run: cargo build --release --bin dirback_cmd --bin dirback_tui
 
       - name: Build the GUI app
         working-directory: ./crates/bin/gui
@@ -92,7 +92,7 @@ jobs:
             EXT=".exe"
           fi
 
-          cp "target/release/cmd${EXT}" "dist/cmd${EXT}"
+          cp "target/release/dirback_cmd${EXT}" "dist/dirback_cmd${EXT}"
           cp "target/release/dirback_tui${EXT}" "dist/dirback_tui${EXT}"
           cp "target/release/dirback_gui${EXT}" "dist/dirback_gui${EXT}"
 
