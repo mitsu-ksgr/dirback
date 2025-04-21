@@ -73,7 +73,7 @@
       <button type="button" onclick={() => goto("/")} class="secondary"
         >Cancel</button
       >
-      <button onclick={onSubmit}>Register</button>
+      <button type="submit" onclick={onSubmit}>Register</button>
     </div>
   </form>
 
