@@ -9,7 +9,7 @@ rust-version = "1.85.0"
 authors = ["mitsu-ksgr"]
 repository = "https://github.com/mitsu-ksgr/dirback"
 license = "MIT"
-license-file = "LISENCE"
+license-file = "LICENSE"
 description = "simple directory-based backup tools."
 
 [workspace.dependencies]
