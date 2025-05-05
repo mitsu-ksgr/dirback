@@ -382,8 +382,9 @@
         text-align: right;
       }
       td:nth-child(3) {
-        width: 20rem;
+        width: 16rem;
         font-family: monospace;
+        letter-spacing: -1px;
       }
     }
   }
